@@ -144,13 +144,13 @@ const SplashScreen = () => (
 const App: React.FC = () => {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [authUserId, setAuthUserId] = useState<string | null>(null);
-    const [showLanding, setShowLanding] = useState(true);
+    const [showLanding, setShowLanding] = useState(() => window.location.pathname !== '/dashboard');
     const [showWelcomeScreens, setShowWelcomeScreens] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     // Global Verification Modal (e.g. triggered from profile)
     const [showVerification, setShowVerification] = useState(false);
-    const [showAdmin, setShowAdmin] = useState(false);
+    const [showAdmin, setShowAdmin] = useState(() => window.location.pathname === '/admin');
 
     // Hash-based blog routing
     const [blogRoute, setBlogRoute] = useState<{ active: boolean; slug?: string }>(() => {
@@ -167,8 +167,18 @@ const App: React.FC = () => {
             else if (hash === '#/blog') setBlogRoute({ active: true });
             else setBlogRoute({ active: false });
         };
+        const handlePopState = () => {
+            const path = window.location.pathname;
+            setShowAdmin(path === '/admin');
+            setShowLanding(path !== '/dashboard' && path !== '/admin');
+            handleHashChange();
+        };
         window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('hashchange', handleHashChange);
+            window.removeEventListener('popstate', handlePopState);
+        };
     }, []);
 
     useEffect(() => {
@@ -176,7 +186,10 @@ const App: React.FC = () => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 setAuthUserId(user.uid);
-                // Returning user — skip landing and welcome screens
+                // Returning user — navigate to dashboard
+                if (window.location.pathname !== '/admin') {
+                    window.history.replaceState({}, '', '/dashboard');
+                }
                 setShowLanding(false);
                 setShowWelcomeScreens(false);
             } else {
@@ -261,6 +274,7 @@ const App: React.FC = () => {
     }, [userData, authUserId]);
 
     const handleLandingComplete = () => {
+        window.history.pushState({}, '', '/dashboard');
         setShowLanding(false);
         setShowWelcomeScreens(true);
     };
@@ -310,7 +324,7 @@ const App: React.FC = () => {
     }
 
     if (showAdmin) {
-        return <AdminDashboard onBack={() => setShowAdmin(false)} />;
+        return <AdminDashboard onBack={() => { window.history.pushState({}, '', '/dashboard'); setShowAdmin(false); setShowLanding(false); }} />;
     }
 
     if (blogRoute.active) {
@@ -375,13 +389,7 @@ const App: React.FC = () => {
                 )}
             </ErrorBoundary>
 
-            {/* Admin Toggle Button (Dev/Demo only) */}
-            <button
-                onClick={() => setShowAdmin(true)}
-                className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-slate-900 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg hover:bg-slate-800 transition-colors opacity-50 hover:opacity-100"
-            >
-                Admin Panel
-            </button>
+
         </>
     );
 };
