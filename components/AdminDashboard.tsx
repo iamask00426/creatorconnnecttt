@@ -22,6 +22,13 @@ type AdminTab = 'overview' | 'users' | 'collabs' | 'feedback' | 'blog';
 const COLORS = ['#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#64748b'];
 
 export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+    // Admin Auth State
+    const [isAdminAuth, setIsAdminAuth] = useState(false);
+    const [loginUsername, setLoginUsername] = useState('');
+    const [loginPassword, setLoginPassword] = useState('');
+    const [loginError, setLoginError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
     const [activeTab, setActiveTab] = useState<AdminTab>('overview');
     const [users, setUsers] = useState<Creator[]>([]);
     const [collabs, setCollabs] = useState<Collaboration[]>([]);
@@ -29,6 +36,19 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const [loading, setLoading] = useState(true);
     const [userFilter, setUserFilter] = useState<'all' | 'pending' | 'active' | 'rejected'>('all');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const handleAdminLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        const correctUser = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
+        const correctPass = import.meta.env.VITE_ADMIN_PASSWORD || 'admin';
+        if (loginUsername === correctUser && loginPassword === correctPass) {
+            setIsAdminAuth(true);
+            setLoginError('');
+        } else {
+            setLoginError('Invalid username or password');
+            setLoginPassword('');
+        }
+    };
 
     // Edit Modal State
     const [editingUser, setEditingUser] = useState<Creator | null>(null);
@@ -81,6 +101,203 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             unsubscribeBlog();
         };
     }, []);
+
+    // Login gate — MUST be after all hooks
+    if (!isAdminAuth) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            }}>
+                <div style={{
+                    width: '100%',
+                    maxWidth: '420px',
+                    padding: '40px',
+                    background: 'rgba(255,255,255,0.05)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '24px',
+                    boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+                }}>
+                    <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+                        <div style={{
+                            width: '56px',
+                            height: '56px',
+                            background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            margin: '0 auto 16px',
+                            boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
+                        }}>
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                        </div>
+                        <h1 style={{
+                            fontSize: '24px',
+                            fontWeight: 900,
+                            color: 'white',
+                            margin: '0 0 4px',
+                            letterSpacing: '-0.5px',
+                        }}>Admin Panel</h1>
+                        <p style={{
+                            fontSize: '14px',
+                            color: 'rgba(255,255,255,0.5)',
+                            margin: 0,
+                        }}>Sign in to access the dashboard</p>
+                    </div>
+
+                    <form onSubmit={handleAdminLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                color: 'rgba(255,255,255,0.6)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                marginBottom: '6px',
+                            }}>Username</label>
+                            <input
+                                type="text"
+                                value={loginUsername}
+                                onChange={e => setLoginUsername(e.target.value)}
+                                placeholder="Enter username"
+                                autoFocus
+                                style={{
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    borderRadius: '12px',
+                                    border: '1px solid rgba(255,255,255,0.15)',
+                                    background: 'rgba(255,255,255,0.08)',
+                                    color: 'white',
+                                    fontSize: '15px',
+                                    outline: 'none',
+                                    boxSizing: 'border-box',
+                                    transition: 'border-color 0.2s',
+                                }}
+                                onFocus={e => e.target.style.borderColor = '#8b5cf6'}
+                                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                            />
+                        </div>
+                        <div>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                color: 'rgba(255,255,255,0.6)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                marginBottom: '6px',
+                            }}>Password</label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={loginPassword}
+                                    onChange={e => setLoginPassword(e.target.value)}
+                                    placeholder="Enter password"
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 48px 12px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(255,255,255,0.15)',
+                                        background: 'rgba(255,255,255,0.08)',
+                                        color: 'white',
+                                        fontSize: '15px',
+                                        outline: 'none',
+                                        boxSizing: 'border-box',
+                                        transition: 'border-color 0.2s',
+                                    }}
+                                    onFocus={e => e.target.style.borderColor = '#8b5cf6'}
+                                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute',
+                                        right: '12px',
+                                        top: '50%',
+                                        transform: 'translateY(-50%)',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: 'rgba(255,255,255,0.4)',
+                                        padding: '4px',
+                                    }}
+                                >
+                                    {showPassword ? (
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+                                    ) : (
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {loginError && (
+                            <div style={{
+                                padding: '10px 14px',
+                                borderRadius: '10px',
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                border: '1px solid rgba(239, 68, 68, 0.3)',
+                                color: '#fca5a5',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                            }}>{loginError}</div>
+                        )}
+
+                        <button
+                            type="submit"
+                            style={{
+                                width: '100%',
+                                padding: '14px',
+                                borderRadius: '12px',
+                                border: 'none',
+                                background: 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+                                color: 'white',
+                                fontSize: '15px',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                marginTop: '8px',
+                                boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3)',
+                                transition: 'transform 0.15s, box-shadow 0.15s',
+                            }}
+                            onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.98)')}
+                            onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+                        >
+                            Sign In
+                        </button>
+                    </form>
+
+                    <button
+                        onClick={onBack}
+                        style={{
+                            display: 'block',
+                            width: '100%',
+                            marginTop: '16px',
+                            padding: '10px',
+                            background: 'none',
+                            border: 'none',
+                            color: 'rgba(255,255,255,0.4)',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                        }}
+                    >
+                        ← Back to Platform
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     const handleStatusUpdate = async (uid: string, status: 'active' | 'rejected' | 'pending') => {
         if (!uid) return;
@@ -213,6 +430,126 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         setShowBlogEditor(false);
         setEditingPost(null);
         setBlogForm({ title: '', slug: '', excerpt: '', content: '', coverImageUrl: '', author: 'CreatorConnect Team', tags: '', status: 'draft' });
+    };
+
+    // Full Data Download
+    const handleDownloadAllData = () => {
+        try {
+            const safeDate = (d: any) => {
+                if (!d) return null;
+                try { return d.toDate ? d.toDate().toISOString() : new Date(d).toISOString(); } catch { return null; }
+            };
+
+            const exportData = {
+                exportedAt: new Date().toISOString(),
+                platform: 'CreatorConnect',
+                summary: {
+                    totalUsers: users.length,
+                    totalCollaborations: collabs.length,
+                    totalFeedback: feedback.length,
+                    totalBlogPosts: blogPosts.length,
+                },
+                users: users.map(u => ({
+                    uid: u.uid,
+                    displayName: u.displayName || '',
+                    email: u.email || '',
+                    niche: u.niche || '',
+                    gender: (u as any).gender || '',
+                    bio: u.bio || '',
+                    instagram: u.instagram || '',
+                    instagramVerified: u.instagramVerified || false,
+                    followerCount: u.followerCount || 0,
+                    location: u.location || '',
+                    profileStatus: u.profileStatus || '',
+                    collabs: u.collabs || 0,
+                    rating: u.rating || 0,
+                    ratingCount: u.ratingCount || 0,
+                    createdAt: safeDate(u.createdAt),
+                })),
+                collaborations: collabs.map(c => ({
+                    id: c.id,
+                    projectName: c.projectName || '',
+                    description: c.description || '',
+                    status: c.status,
+                    participantIds: c.participantIds || [],
+                    participants: c.participants || {},
+                    createdAt: safeDate(c.createdAt),
+                })),
+                feedback: feedback.map(f => ({
+                    id: f.id,
+                    type: f.type,
+                    message: f.message || '',
+                    displayName: f.displayName || '',
+                    userId: f.userId || '',
+                    userAgent: f.userAgent || '',
+                    timestamp: safeDate(f.timestamp),
+                })),
+                blogPosts: blogPosts.map(b => ({
+                    id: b.id,
+                    title: b.title || '',
+                    slug: b.slug || '',
+                    excerpt: b.excerpt || '',
+                    content: b.content || '',
+                    author: b.author || '',
+                    status: b.status,
+                    tags: b.tags || [],
+                    publishedAt: safeDate(b.publishedAt),
+                })),
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const ts = new Date().toISOString().slice(0, 10);
+            a.href = url;
+            a.download = `creatorconnect-data-${ts}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Download failed:', err);
+            alert('Failed to download data. Check console for details.');
+        }
+    };
+
+    const handleDownloadCSV = () => {
+        try {
+            const safeDate = (d: any) => {
+                if (!d) return '';
+                try { return d.toDate ? d.toDate().toISOString() : new Date(d).toISOString(); } catch { return ''; }
+            };
+
+            const headers = ['UID', 'Display Name', 'Email', 'Niche', 'Gender', 'Instagram', 'Verified', 'Followers', 'Location', 'Status', 'Collabs', 'Rating', 'Created At'];
+            const rows = users.map(u => [
+                u.uid || '',
+                u.displayName || '',
+                u.email || '',
+                u.niche || '',
+                (u as any).gender || '',
+                u.instagram || '',
+                u.instagramVerified ? 'Yes' : 'No',
+                u.followerCount || 0,
+                u.location || '',
+                u.profileStatus || '',
+                u.collabs || 0,
+                u.rating || 0,
+                safeDate(u.createdAt),
+            ]);
+            const csvContent = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `creatorconnect-users-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('CSV download failed:', err);
+            alert('Failed to download CSV. Check console for details.');
+        }
     };
 
 
@@ -386,6 +723,53 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     </button>
                 </div>
             )}
+
+            {/* Data Export Section */}
+            <div className="mt-8 pt-8 border-t border-slate-200">
+                <h3 className="text-lg font-black text-slate-900 mb-4">Data Export</h3>
+                <div className="bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-100 rounded-3xl p-6">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <h4 className="font-bold text-slate-900 text-base">Download All Platform Data</h4>
+                            <p className="text-sm text-slate-600 mt-1">Export users, collaborations, feedback, and blog posts.</p>
+                            <div className="flex flex-wrap gap-3 mt-3">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 rounded-full text-xs font-bold text-slate-700 shadow-sm">
+                                    <span className="w-2 h-2 rounded-full bg-violet-500"></span>
+                                    {users.length} Users
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 rounded-full text-xs font-bold text-slate-700 shadow-sm">
+                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    {collabs.length} Collabs
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 rounded-full text-xs font-bold text-slate-700 shadow-sm">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                                    {feedback.length} Feedback
+                                </span>
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/80 rounded-full text-xs font-bold text-slate-700 shadow-sm">
+                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                    {blogPosts.length} Blog Posts
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={handleDownloadCSV}
+                                className="px-5 py-3 bg-white text-slate-700 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                Users CSV
+                            </button>
+                            <button
+                                onClick={handleDownloadAllData}
+                                className="px-5 py-3 bg-violet-600 text-white font-bold rounded-xl hover:bg-violet-700 transition-colors shadow-lg shadow-violet-200 flex items-center gap-2"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                                Full JSON Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Danger Zone */}
             <div className="mt-8 pt-8 border-t border-slate-200">
