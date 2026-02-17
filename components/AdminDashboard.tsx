@@ -45,6 +45,12 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             setIsAdminAuth(true);
             setLoginError('');
         } else {
+            console.log('Login failed. Environment Check:', {
+                hasUser: !!correctUser,
+                hasPass: !!correctPass,
+                userLength: correctUser?.length,
+                passLength: correctPass?.length
+            });
             setLoginError('Invalid username or password');
             setLoginPassword('');
         }
