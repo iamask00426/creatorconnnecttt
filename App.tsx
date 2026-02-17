@@ -16,7 +16,7 @@ import { BlogPage } from './components/BlogPage.tsx';
 const baseNewUser: Partial<UserData> = {
     displayName: 'New Creator',
     email: '',
-    photoURL: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80',
+    photoURL: '',
     niche: 'General',
     followerCount: 0,
     bio: '',

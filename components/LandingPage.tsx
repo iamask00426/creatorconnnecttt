@@ -106,7 +106,7 @@ const Header: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
 
     return (
         <header
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-zinc-950/70 backdrop-blur-xl border-b border-white/5' : 'bg-transparent pt-4'
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-zinc-950/70 backdrop-blur-md md:backdrop-blur-xl border-b border-white/5' : 'bg-transparent pt-4'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -184,6 +184,9 @@ const Hero: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
     const [btnPos, setBtnPos] = useState({ x: 0, y: 0 });
 
     const handleMouseMove = (e: React.MouseEvent) => {
+        // Disable on mobile/tablet to prevent lag
+        if (typeof window !== 'undefined' && window.innerWidth < 768) return;
+
         if (!containerRef.current) return;
 
         // 3D Tilt Logic
@@ -230,9 +233,9 @@ const Hero: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
 
             {/* Human-Centric Background - Warm Glows */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                <div className="absolute -top-[20%] left-[20%] w-[600px] h-[600px] bg-brand-500/20 rounded-full blur-[120px] mix-blend-screen opacity-60 animate-blob"></div>
-                <div className="absolute top-[10%] right-[10%] w-[500px] h-[500px] bg-accent-500/20 rounded-full blur-[100px] mix-blend-screen opacity-50 animate-blob animation-delay-2000"></div>
-                <div className="absolute -bottom-[20%] left-[30%] w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[120px] mix-blend-screen opacity-40"></div>
+                <div className="absolute -top-[20%] left-[20%] w-[600px] h-[600px] bg-brand-500/20 rounded-full blur-[60px] md:blur-[120px] md:mix-blend-screen opacity-60 animate-blob"></div>
+                <div className="absolute top-[10%] right-[10%] w-[500px] h-[500px] bg-accent-500/20 rounded-full blur-[50px] md:blur-[100px] md:mix-blend-screen opacity-50 animate-blob animation-delay-2000"></div>
+                <div className="absolute -bottom-[20%] left-[30%] w-[800px] h-[800px] bg-purple-500/10 rounded-full blur-[60px] md:blur-[120px] md:mix-blend-screen opacity-40"></div>
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">

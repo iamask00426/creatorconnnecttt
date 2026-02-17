@@ -5,6 +5,7 @@ import { creatorNiches } from '../constants';
 import { CameraIcon, MyLocationIcon, InstagramIcon } from './icons';
 import { uploadProfileImage } from '../services/firebase';
 import { verify_ig } from '../services/instagram';
+import { sendWhatsAppWelcome } from '../services/whatsapp';
 import { countryCodes } from '../data/countryCodes';
 
 interface OnboardingFlowProps {
@@ -77,6 +78,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
         if (!displayName || !niche || !location || !phoneNumber || !gender) {
             return;
         }
+        // Fire-and-forget WhatsApp welcome message
+        sendWhatsAppWelcome(`${countryCode}${phoneNumber}`, displayName);
         setStep(2);
     };
 
@@ -185,11 +188,17 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
                             {/* Profile Pic - Overlapping */}
                             <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
                                 <div className="relative group">
-                                    <img
-                                        src={photoURL}
-                                        className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg bg-white"
-                                        alt="Profile"
-                                    />
+                                    {photoURL ? (
+                                        <img
+                                            src={photoURL}
+                                            className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg bg-white"
+                                            alt="Profile"
+                                        />
+                                    ) : (
+                                        <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-slate-200 flex items-center justify-center">
+                                            <CameraIcon className="w-8 h-8 text-slate-400" />
+                                        </div>
+                                    )}
                                     <label className="absolute inset-0 flex items-center justify-center rounded-full bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                                         <CameraIcon className="w-6 h-6 text-white" />
                                         <input type="file" className="hidden" onChange={handlePhotoSelect} accept="image/*" />
