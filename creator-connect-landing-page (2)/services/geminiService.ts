@@ -1,14 +1,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { CollabStrategy } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export const generateCollabStrategy = async (
   name: string,
   niche: string,
   city: string
 ): Promise<CollabStrategy> => {
-  
+
   const prompt = `
     Act as a viral content strategist for "Creator Connect".
     
@@ -58,7 +58,7 @@ export const generateCollabStrategy = async (
 
     const text = response.text;
     if (!text) {
-        throw new Error("No response from AI");
+      throw new Error("No response from AI");
     }
     return JSON.parse(text) as CollabStrategy;
 

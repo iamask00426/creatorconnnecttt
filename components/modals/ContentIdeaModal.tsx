@@ -17,6 +17,37 @@ interface ContentIdea {
     shootLocation: string;
 }
 
+const TEMPLATES = {
+    HOOKS: [
+        "POV: You're in ${city} and trying to embrace your ${niche} life...",
+        "5 Hidden Gems in ${city} for ${niche} Lovers",
+        "Stop scrolling if you live in ${city}!",
+        "The ${niche} scene in ${city} is severely underrated.",
+        "A day in the life of a ${niche} creator in ${city}."
+    ],
+    CONCEPTS: [
+        "A cinematic montage of your daily routine with voiceover about passion.",
+        "Interview style: stop a stranger and ask them their favorite spot.",
+        "Time-lapse of the city skyline transitioning from day to night.",
+        "Behind the scenes of your latest project/work.",
+        "Comparing expectations vs reality of living in the city."
+    ],
+    LOCATIONS: [
+        "A busy downtown street crossing",
+        "A quiet local cafe with good aesthetics",
+        "A rooftop with a view",
+        "A local park during golden hour",
+        "An iconic landmark in the background"
+    ],
+    TITLES: [
+        "City Vibes",
+        "Hidden Gems",
+        "Day in the Life",
+        "Local Secrets",
+        "The Aesthetic"
+    ]
+};
+
 export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, onClose, onUpdateUserData }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [statusLog, setStatusLog] = useState<string[]>([]);
@@ -29,6 +60,35 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
     const [schedulingIdx, setSchedulingIdx] = useState<number | null>(null);
     const [scheduleDate, setScheduleDate] = useState<string>('');
 
+    // API Key Check for UI - Corrected for Vite
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const isOffline = !apiKey || apiKey === 'PLACEHOLDER_API_KEY' || apiKey.trim() === '';
+
+    // --- Dynamic Offline Generator ---
+    const generateMockIdeas = (city: string, niche: string): ContentIdea[] => {
+        const cityShort = city.split(',')[0];
+        const getRandom = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+
+        // generate 3 unique ideas
+        return Array.from({ length: 3 }).map(() => {
+            const hook = getRandom(TEMPLATES.HOOKS)
+                .replace(/\${city}/g, cityShort)
+                .replace(/\${niche}/g, niche);
+
+            const concept = getRandom(TEMPLATES.CONCEPTS);
+            const location = getRandom(TEMPLATES.LOCATIONS);
+            const title = getRandom(TEMPLATES.TITLES);
+
+            return {
+                title,
+                hook,
+                concept,
+                shootLocation: location,
+                locationTips: "Use natural lighting and stabilize your shots."
+            };
+        });
+    };
+
     const generateIdeas = async (targetCity: string) => {
         if (!userData || isLoading) return;
         setIsLoading(true);
@@ -37,31 +97,46 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
         setSavedIdeas(new Set());
         setSchedulingIdx(null);
 
+        if (isOffline) {
+            setStatusLog(["[OFFLINE] No API Key detected", "[SYSTEM] Activating Offline Generator...", "[SYNC] Creating unique combinations..."]);
+            setTimeout(() => {
+                const uniqueIdeas = generateMockIdeas(targetCity, userData.niche);
+                setIdeas(uniqueIdeas);
+                setIsLoading(false);
+            }, 1500);
+            return;
+        }
+
         setStatusLog(["[AI] Initializing Creative Engine...", `[GEO] Analyzing trend data for: ${targetCity}`, "[SYNC] Matching with niche aesthetics..."]);
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
 
-            const prompt = `Act as a world-class viral content strategist. Generate 3 high-potential, specific short-form video ideas (TikTok/Reels) for a creator.
-            
+            // Refined Prompt for Maximum Virality
+            const prompt = `
+            ROLE: World-Class Viral Content Strategist for Short-Form Video (TikTok/Reels/Shorts).
+            TASK: Generate 3 specific, high-potential video concepts for a creator.
+
             CREATOR PROFILE:
             - Niche: ${userData.niche}
-            - Style context: Professional, engaging
-            - Target Location: ${targetCity} (Must be specific to this place if possible)
-            
+            - Location Context: ${targetCity}
+            - Vibe: Professional, Aesthetic, Engaging
+
             REQUIREMENTS:
-            1. Ideas must use specific landmarks, vibes, or cultural nuances of ${targetCity}.
-            2. Hooks must be scroll-stopping.
-            
-            OUTPUT JSON (Array 'ideas'):
-            - title: Short, punchy name for the concept.
-            - hook: The exact text/visual hook for the first 3 seconds.
-            - concept: Brief direction on execution.
-            - shootLocation: A SPECIFIC physical spot in ${targetCity} (e.g. "The steps of the Met", "Shibuya Crossing", "Local Coffee Shop").
-            - locationTips: Lighting/Angle advice.`;
+            1. LOCATION SPECIFICITY: You must use specific landmarks, streets, or distinct cultural vibes of ${targetCity}.
+            2. HOOKS: Must be "Pattern Interrupts" (visual or text) that stop the scroll in 2 seconds.
+            3. RELATABILITY: Connect the location to the niche in a unique way.
+
+            OUTPUT JSON STRUCTURE (Array 'ideas'):
+            - title: Short, punchy internal name for the concept.
+            - hook: The exact text overlay or visual action for the first 3 seconds.
+            - concept: Brief, directorial instruction on how to shoot the scene.
+            - shootLocation: A SPECIFIC physical spot in ${targetCity} (e.g., "The steps of the Met", "Shibuya Crossing", "Local Coffee Shop").
+            - locationTips: Lighting, lens choice (e.g. 0.5x), or angle advice.
+            `;
 
             const response = await ai.models.generateContent({
-                model: 'gemini-3-flash-preview',
+                model: 'gemini-2.5-flash', // Using Stable Model
                 contents: prompt,
                 config: {
                     responseMimeType: "application/json",
@@ -100,33 +175,12 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
             console.error("Content generation error:", error);
             setStatusLog(prev => [...prev, "[ERROR] Connection interrupted. Generating fallback concepts..."]);
 
-            // Fallback for demo stability
+            // Fallback for failed API call
             setTimeout(() => {
-                setIdeas([
-                    {
-                        title: "Hidden Gem Reveal",
-                        hook: `Stop going to tourist traps in ${targetCity.split(',')[0]}!`,
-                        concept: "Quick cuts walking through a crowded street, transitioning suddenly into a quiet, beautiful hidden spot.",
-                        shootLocation: `Historic District in ${targetCity.split(',')[0]}`,
-                        locationTips: "Use 0.5x wide lens. Film during golden hour for warmth."
-                    },
-                    {
-                        title: "POV: Niche Lifestyle",
-                        hook: `This is what being a ${userData.niche} in ${targetCity.split(',')[0]} actually looks like.`,
-                        concept: "ASMR style day-in-the-life. Coffee pouring, laptop opening, walking past iconic architecture.",
-                        shootLocation: "Downtown / City Center",
-                        locationTips: "Focus on textures and sounds. Keep camera movements smooth."
-                    },
-                    {
-                        title: "Local Trend Check",
-                        hook: `The one thing everyone in ${targetCity.split(',')[0]} is doing right now.`,
-                        concept: `Showcase a specific local habit or spot that connects with the ${userData.niche} community.`,
-                        shootLocation: "Popular Public Square",
-                        locationTips: "Capture background motion of people to show energy."
-                    }
-                ]);
+                const uniqueIdeas = generateMockIdeas(targetCity, userData.niche);
+                setIdeas(uniqueIdeas);
                 setIsLoading(false);
-            }, 2000);
+            }, 1500);
         }
     };
 
@@ -153,6 +207,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
         // Check for Demo User
         if (userData.uid === 'mock-user-123') {
             alert("This is a demo account. Data will not persist to the database.");
+            return;
         }
 
         try {
@@ -201,12 +256,15 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                 {/* Header */}
                 <div className="px-7 py-6 flex justify-between items-center bg-white/60 backdrop-blur-xl border-b border-slate-200/60 z-20 sticky top-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-violet-500/20">
-                            <SparklesIcon className="w-5 h-5 text-white" />
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-lg ${isOffline ? 'bg-slate-800 shadow-slate-900/20' : 'bg-gradient-to-br from-violet-600 to-indigo-600 shadow-violet-500/20'}`}>
+                            {isOffline ? <BoltIcon className="w-5 h-5 text-slate-400" /> : <SparklesIcon className="w-5 h-5 text-white" />}
                         </div>
                         <div>
                             <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight leading-none">Content Studio</h2>
-                            <p className="text-[9px] font-black text-violet-600 uppercase tracking-[0.2em] mt-1.5">AI Creative Director</p>
+                            <div className="flex items-center gap-2 mt-1.5">
+                                <p className="text-[9px] font-black text-violet-600 uppercase tracking-[0.2em]">{isOffline ? 'Offline Mode' : 'AI Creative Director'}</p>
+                                {isOffline && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />}
+                            </div>
                         </div>
                     </div>
                     <button
@@ -368,8 +426,8 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                             onClick={() => handleInitiateSchedule(idx)}
                                             disabled={savedIdeas.has(idx)}
                                             className={`w-full mt-6 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 ${savedIdeas.has(idx)
-                                                    ? 'bg-green-50 text-green-600 border border-green-200 cursor-default shadow-none'
-                                                    : 'bg-slate-900 text-white shadow-slate-900/10 hover:shadow-xl hover:shadow-slate-900/20'
+                                                ? 'bg-green-50 text-green-600 border border-green-200 cursor-default shadow-none'
+                                                : 'bg-slate-900 text-white shadow-slate-900/10 hover:shadow-xl hover:shadow-slate-900/20'
                                                 }`}
                                         >
                                             {savedIdeas.has(idx) ? (
@@ -386,7 +444,9 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                             ))}
 
                             <div className="text-center pt-6 pb-2">
-                                <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">Powered by Gemini</p>
+                                <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                                    {isOffline ? 'Offline Mode • Dynamic Generator' : 'Powered by creator connect ai'}
+                                </p>
                             </div>
                         </div>
                     )}

@@ -13,7 +13,7 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
     const [isLoading, setIsLoading] = useState(false);
     const [auditLog, setAuditLog] = useState<string[]>([]);
     const hasRunRef = useRef(false);
-    
+
     const [stats, setStats] = useState<{
         engagementRate: string;
         avgLikes: string;
@@ -26,10 +26,10 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
         setIsLoading(true);
         setIsLocked(true);
         setAuditLog(["[SYSTEM] Initializing Real-time Audit...", "[NETWORK] Pinging social clusters..."]);
-        
+
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
+            const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+
             const prompt = `Act as a social media auditor. Generate a professional Media Kit profile for this creator in JSON format.
             Creator Details:
             - Name: ${userData.displayName}
@@ -67,7 +67,7 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
         } catch (error) {
             console.error("Audit error:", error);
             setAuditLog(prev => [...prev, "[ERROR] Connection interrupted. Using cached verification data."]);
-            
+
             setTimeout(() => {
                 setStats({
                     engagementRate: "5.2%",
@@ -99,10 +99,10 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
 
                 <div className={`flex-grow overflow-y-auto ${isLocked ? 'overflow-hidden' : ''} hide-scrollbar`}>
                     <div className="relative h-64 bg-slate-950 flex flex-col items-center justify-center p-8 overflow-hidden">
-                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
-                         <img src={userData.photoURL} className="relative z-10 w-24 h-24 rounded-3xl border-4 border-white shadow-2xl object-cover mb-4" alt="" />
-                         <h2 className="relative z-10 text-2xl font-black text-white">{userData.displayName}</h2>
-                         <p className="relative z-10 text-violet-400 text-[10px] font-black uppercase tracking-widest">{userData.niche}</p>
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
+                        <img src={userData.photoURL} className="relative z-10 w-24 h-24 rounded-3xl border-4 border-white shadow-2xl object-cover mb-4" alt="" />
+                        <h2 className="relative z-10 text-2xl font-black text-white">{userData.displayName}</h2>
+                        <p className="relative z-10 text-violet-400 text-[10px] font-black uppercase tracking-widest">{userData.niche}</p>
                     </div>
 
                     <div className="p-8 space-y-10">
@@ -127,7 +127,7 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
                             </h3>
                             <div className="grid gap-3">
                                 {stats?.audienceInsights.map((insight, i) => (
-                                    <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-slate-700 animate-fade-in-up" style={{animationDelay: `${i * 100}ms`}}>
+                                    <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-slate-700 animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
                                         {insight}
                                     </div>
                                 ))}
