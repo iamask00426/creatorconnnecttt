@@ -39,8 +39,9 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
     const handleAdminLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        const correctUser = import.meta.env.VITE_ADMIN_USERNAME || 'admin';
-        const correctPass = import.meta.env.VITE_ADMIN_PASSWORD || 'admin';
+        // Fallback to hardcoded credentials if env vars are missing in production
+        const correctUser = import.meta.env.VITE_ADMIN_USERNAME || 'iamask00426';
+        const correctPass = import.meta.env.VITE_ADMIN_PASSWORD || '@Akash730311';
         if (loginUsername === correctUser && loginPassword === correctPass) {
             setIsAdminAuth(true);
             setLoginError('');
