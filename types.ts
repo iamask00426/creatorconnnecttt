@@ -59,6 +59,7 @@ export interface Creator {
     city?: string;
     country?: string;
     profileStatus?: CreatorProfileStatus; // Added 'onboarding'
+    username?: string; // Unique username for custom link
 }
 
 export type UserData = Creator;

@@ -1,16 +1,17 @@
 import React, { useState, useCallback, ReactNode, ErrorInfo, useEffect } from 'react';
-import type { UserData } from './types.ts';
+import type { UserData, Creator } from './types.ts';
 import { MainApp } from './components/MainApp.tsx';
 import { LandingPage } from './components/LandingPage.tsx';
 import { WelcomeScreens } from './components/WelcomeScreens.tsx';
 import { VerificationModal } from './components/modals/VerificationModal.tsx';
-import { updateUserProfile, auth, db } from './services/firebase.ts';
+import { updateUserProfile, auth, db, getUserByUsername } from './services/firebase.ts';
 import { AuthScreen } from './components/AuthScreen.tsx';
 import { OnboardingFlow } from './components/OnboardingFlow.tsx';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen.tsx';
 import { BoltIcon } from './components/icons.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
 import { BlogPage } from './components/BlogPage.tsx';
+import { CreatorProfilePage } from './components/screens/CreatorProfilePage.tsx'; // Import for public view
 
 // Base template for new users
 const baseNewUser: Partial<UserData> = {
@@ -38,7 +39,8 @@ const baseNewUser: Partial<UserData> = {
     collabs: 0,
     rating: 0,
     ratingCount: 0,
-    profileStatus: 'onboarding' // Default for new users
+    profileStatus: 'onboarding', // Default for new users
+    username: ''
 };
 
 // Mock Data for Demo Login (Bypasses verification)
@@ -152,6 +154,9 @@ const App: React.FC = () => {
     const [showVerification, setShowVerification] = useState(false);
     const [showAdmin, setShowAdmin] = useState(() => window.location.pathname === '/admin');
 
+    // Unique Link State
+    const [viewingUniqueProfile, setViewingUniqueProfile] = useState<Creator | null>(null);
+
     // Hash-based blog routing
     const [blogRoute, setBlogRoute] = useState<{ active: boolean; slug?: string }>(() => {
         const hash = window.location.hash;
@@ -161,6 +166,25 @@ const App: React.FC = () => {
     });
 
     useEffect(() => {
+        const checkUniqueLink = async () => {
+            const path = window.location.pathname;
+            // Ignore standard routes
+            if (path === '/' || path === '/dashboard' || path === '/admin' || path.startsWith('/static')) {
+                setViewingUniqueProfile(null);
+                return;
+            }
+
+            // Assume path is /username
+            const username = path.substring(1); // Remove leading slash
+            if (username) {
+                const user = await getUserByUsername(username);
+                if (user) {
+                    setViewingUniqueProfile(user);
+                    setShowLanding(false); // Hide landing if valid profile found
+                }
+            }
+        };
+
         const handleHashChange = () => {
             const hash = window.location.hash;
             if (hash.startsWith('#/blog/')) setBlogRoute({ active: true, slug: hash.slice(7) });
@@ -170,9 +194,22 @@ const App: React.FC = () => {
         const handlePopState = () => {
             const path = window.location.pathname;
             setShowAdmin(path === '/admin');
-            setShowLanding(path !== '/dashboard' && path !== '/admin');
+
+            // Re-run unique link check on popstate
+            checkUniqueLink();
+
+            // Only show landing if NOT admin, NOT dashboard, and NOT viewing a unique profile (checked above)
+            if (path !== '/dashboard' && path !== '/admin' && path === '/') {
+                setShowLanding(true);
+                setViewingUniqueProfile(null);
+            }
+
             handleHashChange();
         };
+
+        // Check on mount
+        checkUniqueLink();
+
         window.addEventListener('hashchange', handleHashChange);
         window.addEventListener('popstate', handlePopState);
         return () => {
@@ -321,6 +358,33 @@ const App: React.FC = () => {
 
     if (isLoading) {
         return <SplashScreen />;
+    }
+
+    // Unique Link View - Renders independent of auth state
+    if (viewingUniqueProfile) {
+        return (
+            <div className="bg-slate-50 min-h-screen">
+                <CreatorProfilePage
+                    currentUser={userData || ({} as UserData)} // Pass empty/generic user if not logged in
+                    creator={viewingUniqueProfile}
+                    onBack={() => {
+                        window.history.pushState({}, '', '/');
+                        setViewingUniqueProfile(null);
+                        setShowLanding(true);
+                    }}
+                    onMessage={() => {
+                        // Redirect to login or handle open chat if logged in
+                        if (!userData) {
+                            window.history.pushState({}, '', '/');
+                            setViewingUniqueProfile(null);
+                            setShowLanding(true);
+                        }
+                    }}
+                    onViewProfile={() => { }} // No-op for public view or implement navigation
+                    onUpdateUserData={() => { }} // Read-only view
+                />
+            </div>
+        );
     }
 
     if (showAdmin) {

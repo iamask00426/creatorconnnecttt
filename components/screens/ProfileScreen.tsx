@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import type { UserData, PastCollaboration, Creator } from '../../types';
 import { creatorNiches } from '../../constants';
 import { SettingsScreen } from './SettingsScreen';
 import { AccountSettingsScreen } from './AccountSettingsScreen';
 import { InstagramOriginalIcon, TiktokIcon, SnapchatIcon, PlusIcon, LocationPinIcon, CameraIcon, YoutubeIcon, TwitterIcon, MyLocationIcon, BoltIcon, StarIcon, PhoneIcon, BookmarkIcon, CalendarIcon } from '../icons';
-import { uploadProfileImage, getRatingsStream, getUser } from '../../services/firebase';
+import { uploadProfileImage, getRatingsStream, getUser, checkUsernameAvailability } from '../../services/firebase';
 import { VerificationModal } from '../modals/VerificationModal';
 import { PhoneVerificationModal } from '../modals/PhoneVerificationModal';
 import { ImageCropperModal } from '../modals/ImageCropperModal';
@@ -42,6 +42,44 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
     const [tempImageSrc, setTempImageSrc] = useState<string>('');
     const [cropType, setCropType] = useState<'profile' | 'cover'>('profile');
 
+    // Username Availability State
+    const [usernameStatus, setUsernameStatus] = useState<'available' | 'taken' | 'checking' | null>(null);
+    const [usernameError, setUsernameError] = useState<string | null>(null);
+
+    const checkUsername = useCallback(async (username: string) => {
+        if (!username || username === userData.username) {
+            setUsernameStatus(null);
+            return;
+        }
+        if (username.length < 3) {
+            setUsernameError("Too short");
+            setUsernameStatus('taken');
+            return;
+        }
+        if (!/^[a-zA-Z0-9_.]+$/.test(username)) {
+            setUsernameError("Invalid chars");
+            setUsernameStatus('taken');
+            return;
+        }
+
+        setUsernameStatus('checking');
+        setUsernameError(null);
+        const isAvailable = await checkUsernameAvailability(username);
+        setUsernameStatus(isAvailable ? 'available' : 'taken');
+        if (!isAvailable) setUsernameError("Username taken");
+    }, [userData.username]);
+
+    // Debounce username check
+    useEffect(() => {
+        if (currentView !== 'edit') return;
+        const timer = setTimeout(() => {
+            if (editedData.username && editedData.username !== userData.username) {
+                checkUsername(editedData.username);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [editedData.username, checkUsername, currentView, userData.username]);
+
     useEffect(() => {
         if (currentView === 'edit') {
             setEditedData(userData);
@@ -76,6 +114,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
         // Only send editable fields to prevent overwriting server-managed counters (collabs, rating)
         const editableFields: Partial<UserData> = {
             displayName: editedData.displayName,
+            username: editedData.username, // Save username
             gender: editedData.gender,
             niche: editedData.niche,
             bio: editedData.bio,
@@ -270,6 +309,30 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                             <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Full Name</label>
                             <input type="text" value={editedData.displayName} onChange={e => setEditedData({ ...editedData, displayName: e.target.value })} className="w-full text-md font-bold text-slate-900 outline-none bg-transparent" placeholder="Your name" />
+                        </div>
+
+                        {/* Unique Link Section */}
+                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm relative">
+                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Unique Link Loop</label>
+                            <div className="flex items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-violet-500 transition-colors">
+                                <span className="text-xs font-bold text-slate-400 whitespace-nowrap">creatorconnect.io/</span>
+                                <input
+                                    type="text"
+                                    value={editedData.username || ''}
+                                    onChange={e => {
+                                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''); // Enforce safe chars
+                                        setEditedData({ ...editedData, username: val });
+                                    }}
+                                    className="w-full text-sm font-black text-slate-900 outline-none bg-transparent placeholder-slate-300"
+                                    placeholder="username"
+                                />
+                                {usernameStatus === 'checking' && <div className="animate-spin w-3 h-3 border-2 border-slate-200 border-t-violet-600 rounded-full"></div>}
+                                {usernameStatus === 'available' && <div className="text-green-500"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div>}
+                                {usernameStatus === 'taken' && <div className="text-red-500 text-[9px] font-black uppercase whitespace-nowrap">{usernameError || 'Taken'}</div>}
+                            </div>
+                            <p className="text-[8px] text-slate-400 mt-1.5 font-medium ml-1">
+                                Share this link to direct brands straight to your profile.
+                            </p>
                         </div>
 
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">

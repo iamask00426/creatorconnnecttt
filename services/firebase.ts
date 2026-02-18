@@ -107,6 +107,28 @@ export const updateUserProfile = async (uid: string, data: Partial<UserData>) =>
     }
 };
 
+export const getUserByUsername = async (username: string): Promise<Creator | null> => {
+    try {
+        const snapshot = await db.collection('users').where('username', '==', username).limit(1).get();
+        if (snapshot.empty) return null;
+        const doc = snapshot.docs[0];
+        return { ...doc.data(), uid: doc.id } as Creator;
+    } catch (error) {
+        console.error("Error fetching user by username:", error);
+        return null;
+    }
+};
+
+export const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+    try {
+        const snapshot = await db.collection('users').where('username', '==', username).limit(1).get();
+        return snapshot.empty;
+    } catch (error) {
+        console.error("Error checking username availability:", error);
+        return false;
+    }
+};
+
 // Function to delete a user
 export const deleteUser = async (uid: string) => {
     try {
