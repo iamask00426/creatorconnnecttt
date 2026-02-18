@@ -42,6 +42,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
     const [tempImageSrc, setTempImageSrc] = useState<string>('');
     const [cropType, setCropType] = useState<'profile' | 'cover'>('profile');
 
+    // Full Screen Image State
+    // Removed duplicate declaration
+
     // Username Availability State
     const [usernameStatus, setUsernameStatus] = useState<'available' | 'taken' | 'checking' | null>(null);
     const [usernameError, setUsernameError] = useState<string | null>(null);
@@ -403,11 +406,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                         </optgroup>
                                     ))}
                                 </select>
-                                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                                    </svg>
-                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-400 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
                             </div>
                         </div>
 
@@ -549,9 +550,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                             ))}
                         </div>
                     </div>
-                </div>
+                </div >
                 {/* Modals */}
-                <VerificationModal
+                < VerificationModal
                     isOpen={isVerificationModalOpen}
                     onClose={() => setIsVerificationModalOpen(false)}
                     onVerifySuccess={handleVerificationSuccess}
@@ -563,7 +564,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     onVerifySuccess={handlePhoneVerifySuccess}
                     initialPhoneNumber={editedData.phoneNumber}
                 />
-            </div>
+            </div >
         );
     }
 
@@ -666,16 +667,18 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                             <div className="space-y-4">
                                 {userData.pastCollaborations.map(collab => (
                                     <div key={collab.id} className="bg-white p-4 rounded-[1.75rem] border border-slate-100 flex gap-5 shadow-sm hover:shadow-md transition-all group cursor-default">
-                                        <div className="flex -space-x-4 cursor-pointer flex-shrink-0 self-center" onClick={() => setExpandedImage(collab.imageUrl)}>
+                                        <div className="flex -space-x-4 cursor-pointer flex-shrink-0 self-center">
                                             <img
                                                 src={userData.photoURL}
                                                 className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-0"
                                                 alt="Me"
+                                                onClick={(e) => { e.stopPropagation(); setExpandedImage(userData.photoURL); }}
                                             />
                                             <img
                                                 src={collab.imageUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'}
                                                 className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-10"
                                                 alt="Partner"
+                                                onClick={(e) => { e.stopPropagation(); setExpandedImage(collab.imageUrl); }}
                                             />
                                         </div>
                                         <div className="flex flex-col justify-center overflow-hidden">

@@ -35,6 +35,26 @@ export const MainApp: React.FC<MainAppProps> = ({ userData, onUpdateUserData, on
     const [unreadMessageCount, setUnreadMessageCount] = useState(0);
 
     useEffect(() => {
+        // Initial URL Check for Profile Tab
+        if (userData?.username) {
+            const path = window.location.pathname;
+            if (path === `/${userData.username}`) {
+                setActiveTab('profile');
+            }
+        }
+    }, [userData?.username]);
+
+    useEffect(() => {
+        // Sync URL with Active Tab
+        if (activeTab === 'profile' && userData?.username) {
+            window.history.pushState({}, '', `/${userData.username}`);
+        } else if (activeTab === 'home') {
+            window.history.pushState({}, '', '/dashboard');
+        }
+        // We can add other tabs if needed, but keeping it simple for now
+    }, [activeTab, userData?.username]);
+
+    useEffect(() => {
         if (!userData?.uid) return;
 
         const unsubNotifs = getNotificationsStream(userData.uid, (notifications) => {

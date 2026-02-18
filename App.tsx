@@ -177,10 +177,14 @@ const App: React.FC = () => {
             // Assume path is /username
             const username = path.substring(1); // Remove leading slash
             if (username) {
+                // If logged in and username matches current user (need to check against loaded userData if possible, 
+                // but userData might not be loaded yet. We handle the split logic in the effect dependency or a separate check)
+
                 const user = await getUserByUsername(username);
                 if (user) {
+                    // We will check inside the render or a separate effect if this user is ME
                     setViewingUniqueProfile(user);
-                    setShowLanding(false); // Hide landing if valid profile found
+                    setShowLanding(false);
                 }
             }
         };
@@ -361,7 +365,10 @@ const App: React.FC = () => {
     }
 
     // Unique Link View - Renders independent of auth state
-    if (viewingUniqueProfile) {
+    // BUT if it matches the logged in user, we skip this and let MainApp render (which will handle the tab selection)
+    const isSelfProfile = userData && viewingUniqueProfile && userData.uid === viewingUniqueProfile.uid;
+
+    if (viewingUniqueProfile && !isSelfProfile) {
         return (
             <div className="bg-slate-50 min-h-screen">
                 <CreatorProfilePage
