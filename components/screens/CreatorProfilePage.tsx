@@ -45,18 +45,18 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
     const [ratings, setRatings] = useState<any[]>([]);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
     const [isSaved, setIsSaved] = useState(false);
-    
+
     // Subscribe to live updates for the creator profile to show real-time ratings/collabs
     useEffect(() => {
         if (!initialCreatorData.uid) return;
-        
+
         const unsubscribe = db.collection('users').doc(initialCreatorData.uid)
             .onSnapshot((doc) => {
                 if (doc.exists) {
                     setLiveCreator({ ...doc.data(), uid: doc.id } as Creator);
                 }
             });
-            
+
         return () => unsubscribe();
     }, [initialCreatorData.uid]);
 
@@ -71,15 +71,15 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
     // Check collaboration status to gate features
     useEffect(() => {
         if (!currentUser?.uid || !liveCreator?.uid) return;
-        
+
         const unsubscribe = getCollaborationsStream(currentUser.uid, (collabs) => {
-            const hasConnection = collabs.some(c => 
-                c.participantIds.includes(liveCreator.uid) && 
+            const hasConnection = collabs.some(c =>
+                c.participantIds.includes(liveCreator.uid) &&
                 (c.status === 'active' || c.status === 'completed')
             );
             setIsConnected(hasConnection);
         });
-        
+
         return () => unsubscribe();
     }, [currentUser.uid, liveCreator.uid]);
 
@@ -113,7 +113,7 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
 
         try {
             await toggleSaveProfile(currentUser.uid, liveCreator.uid, isSaved);
-            
+
             // Update Global State immediately so Saved view updates
             if (onUpdateUserData) {
                 const currentSaved = currentUser.savedProfiles || [];
@@ -140,47 +140,47 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
         { name: 'twitter', icon: <TwitterIcon />, handle: liveCreator.twitter },
         { name: 'snapchat', icon: <SnapchatIcon />, handle: liveCreator.snapchat },
     ];
-    
+
     const isSelf = currentUser.uid === liveCreator.uid;
 
     return (
         <div className="animate-fade-in bg-slate-50 min-h-full pb-20">
-             {expandedImage && (
+            {expandedImage && (
                 <ImageModal imageUrl={expandedImage} onClose={() => setExpandedImage(null)} />
             )}
 
-             <header className="relative h-72 w-full">
-                <img 
-                    src={liveCreator.portfolio?.[0] || `https://picsum.photos/seed/${liveCreator.uid}/800/200`} 
-                    className="w-full h-full object-cover mask-gradient-b cursor-pointer" 
-                    alt="Cover" 
+            <header className="relative h-72 w-full">
+                <img
+                    src={liveCreator.portfolio?.[0] || `https://picsum.photos/seed/${liveCreator.uid}/800/200`}
+                    className="w-full h-full object-cover mask-gradient-b cursor-pointer"
+                    alt="Cover"
                     onClick={() => setExpandedImage(liveCreator.portfolio?.[0] || `https://picsum.photos/seed/${liveCreator.uid}/800/200`)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none"></div>
-                
+
                 <button onClick={onBack} className="absolute top-4 left-4 p-2.5 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-colors shadow-lg border border-white/20">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                 </button>
 
                 {!isSelf && (
-                    <button 
-                        onClick={handleToggleSave} 
+                    <button
+                        onClick={handleToggleSave}
                         className={`absolute top-4 right-4 p-2.5 backdrop-blur-md rounded-full transition-all shadow-lg border ${isSaved ? 'bg-violet-600 text-white border-violet-500' : 'bg-white/20 text-white hover:bg-white/30 border-white/20'}`}
                     >
                         <BookmarkIcon filled={isSaved} />
                     </button>
                 )}
             </header>
-            
+
             <div className="relative px-5 -mt-20">
                 {/* Profile Card Info */}
                 <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-soft-lg border border-slate-100">
                     <div className="flex justify-between items-start mb-6">
                         <div className="relative -mt-12">
-                            <img 
-                                src={liveCreator.photoURL} 
-                                className="w-24 h-24 rounded-2xl border-4 border-white shadow-xl object-cover cursor-pointer hover:scale-105 transition-transform" 
-                                alt={liveCreator.displayName} 
+                            <img
+                                src={liveCreator.photoURL}
+                                className="w-24 h-24 rounded-2xl border-4 border-white shadow-xl object-cover cursor-pointer hover:scale-105 transition-transform"
+                                alt={liveCreator.displayName}
                                 onClick={() => setExpandedImage(liveCreator.photoURL)}
                             />
                             {liveCreator.openToCollab && (
@@ -191,8 +191,8 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                         </div>
                         {!isSelf && (
                             <div className="flex gap-2">
-                                <button 
-                                    onClick={() => isConnected ? onMessage(liveCreator) : alert("Message locked: You must have an accepted collaboration request to chat with this creator (Anti-spam).")} 
+                                <button
+                                    onClick={() => isConnected ? onMessage(liveCreator) : alert("Message locked: You must have an accepted collaboration request to chat with this creator (Anti-spam).")}
                                     className={`p-3 rounded-xl transition-all ${isConnected ? 'bg-slate-100 hover:bg-slate-200 text-slate-700' : 'bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-100'}`}
                                 >
                                     {isConnected ? (
@@ -204,10 +204,10 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                         <LockClosedIcon className="h-5 w-5" />
                                     )}
                                 </button>
-                                
+
                                 {!isConnected && (
-                                    <button 
-                                        onClick={() => setIsCollabModalOpen(true)} 
+                                    <button
+                                        onClick={() => setIsCollabModalOpen(true)}
                                         disabled={!liveCreator.openToCollab}
                                         className={`px-6 py-2.5 text-sm font-bold text-white rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-glow hover:scale-105 transition-all shadow-lg ${!liveCreator.openToCollab ? 'opacity-50 cursor-not-allowed filter grayscale' : ''}`}
                                     >
@@ -232,17 +232,17 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                         </h1>
                         <p className="text-sm font-bold text-violet-600 mb-1">{liveCreator.niche}</p>
                         <div className="flex items-center text-xs text-slate-500 font-medium">
-                             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             {liveCreator.location}
                         </div>
                     </div>
-                    
+
                     <p className="mt-4 text-slate-600 text-sm leading-relaxed border-t border-slate-100 pt-4">
                         {liveCreator.bio}
                     </p>
 
                     <div className="mt-6 grid grid-cols-3 divide-x divide-slate-100 border rounded-2xl border-slate-100 bg-slate-50/50">
-                        <Stat label="Followers" value={new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(liveCreator.followerCount)} />
+                        <Stat label="Total Followers" value={new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(liveCreator.followerCount)} />
                         <Stat label="Collabs" value={liveCreator.collabs} />
                         <Stat label="Rating" value={(liveCreator.ratingCount || 0) > 0 ? `${liveCreator.rating.toFixed(1)}` : '-'} />
                     </div>
@@ -250,17 +250,17 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
             </div>
 
             <div className="mt-6">
-                 <div className="flex items-center gap-4 overflow-x-auto pb-4 px-6 hide-scrollbar">
+                <div className="flex items-center gap-4 overflow-x-auto pb-4 px-6 hide-scrollbar">
                     {socialPlatforms.map(p => (
                         p.handle ? (
                             <div key={p.name} className="flex-shrink-0">
-                                 <SocialLink handle={p.handle} platform={p.name}>{p.icon}</SocialLink>
+                                <SocialLink handle={p.handle} platform={p.name}>{p.icon}</SocialLink>
                             </div>
                         ) : null
                     ))}
                 </div>
             </div>
-            
+
             <div className="px-5 mt-2 space-y-8">
                 {/* Portfolio Section */}
                 <div>
@@ -280,23 +280,23 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                 {/* Past Collaborations Section */}
                 {liveCreator.pastCollaborations && liveCreator.pastCollaborations.length > 0 && (
                     <div>
-                         <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
+                        <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
                             Past Collaborations
                             <span className="ml-2 text-xs font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded-full">{liveCreator.pastCollaborations.length}</span>
                         </h2>
                         <div className="space-y-4">
                             {liveCreator.pastCollaborations.map((collab) => (
                                 <div key={collab.id} className="bg-white rounded-2xl p-3 shadow-soft-sm border border-slate-100 flex gap-4">
-                                     <div className="flex -space-x-4 cursor-pointer flex-shrink-0 self-center" onClick={() => setExpandedImage(collab.imageUrl)}>
-                                         <img 
-                                            src={liveCreator.photoURL} 
-                                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-0" 
-                                            alt="Creator" 
+                                    <div className="flex -space-x-4 cursor-pointer flex-shrink-0 self-center" onClick={() => setExpandedImage(collab.imageUrl)}>
+                                        <img
+                                            src={liveCreator.photoURL}
+                                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-0"
+                                            alt="Creator"
                                         />
-                                        <img 
-                                            src={collab.imageUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'} 
-                                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-10" 
-                                            alt="Partner" 
+                                        <img
+                                            src={collab.imageUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'}
+                                            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-10"
+                                            alt="Partner"
                                         />
                                     </div>
                                     <div className="flex flex-col justify-center flex-grow">
@@ -306,9 +306,9 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                         <div className="flex items-center justify-between mt-2">
                                             <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{collab.date}</p>
                                             {collab.link && (
-                                                <a 
-                                                    href={collab.link} 
-                                                    target="_blank" 
+                                                <a
+                                                    href={collab.link}
+                                                    target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-1 shadow-md shadow-slate-900/10"
                                                 >
@@ -323,27 +323,27 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                         </div>
                     </div>
                 )}
-                
+
                 {/* Reviews / Ratings Section */}
                 <div className="pb-10">
                     <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
                         Reviews
                         <span className="ml-2 text-xs font-normal text-slate-400 bg-slate-100 px-2 py-1 rounded-full">{ratings.length}</span>
                     </h2>
-                    
+
                     {ratings.length > 0 ? (
                         <div className="space-y-4">
                             {ratings.map((rating) => (
                                 <div key={rating.id} className="bg-white rounded-2xl p-4 shadow-soft-sm border border-slate-100">
                                     <div className="flex justify-between items-start mb-2">
-                                        <div 
+                                        <div
                                             className="flex items-center gap-2 cursor-pointer group"
                                             onClick={() => handleReviewerClick(rating.raterId)}
                                         >
-                                            <img 
-                                                src={rating.raterPhoto || 'https://picsum.photos/seed/unknown/100/100'} 
-                                                className="w-8 h-8 rounded-full object-cover border border-slate-100 group-hover:border-violet-300 transition-colors" 
-                                                alt={rating.raterName} 
+                                            <img
+                                                src={rating.raterPhoto || 'https://picsum.photos/seed/unknown/100/100'}
+                                                className="w-8 h-8 rounded-full object-cover border border-slate-100 group-hover:border-violet-300 transition-colors"
+                                                alt={rating.raterName}
                                             />
                                             <div>
                                                 <p className="text-xs font-bold text-slate-900 group-hover:text-violet-600 transition-colors underline decoration-transparent group-hover:decoration-violet-600">{rating.raterName}</p>

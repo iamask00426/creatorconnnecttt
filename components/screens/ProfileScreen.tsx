@@ -636,7 +636,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     )}
 
                     <div className="grid grid-cols-3 bg-slate-50/80 backdrop-blur-sm rounded-[1.75rem] border border-slate-100 p-2 shadow-inner">
-                        <Stat label="Total Reach" value={new Intl.NumberFormat('en-US', { notation: 'compact' }).format(userData.followerCount)} />
+                        <Stat label="Total Followers" value={new Intl.NumberFormat('en-US', { notation: 'compact' }).format(userData.followerCount)} />
                         <Stat label="Collabs" value={userData.collabs} />
                         <Stat label="Rating" value={userData.ratingCount > 0 ? userData.rating.toFixed(1) : '-'} />
                     </div>
