@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import type { UserData, Collaboration, CollabRequest, Creator } from '../../types';
-import { BriefcaseIcon, LockClosedIcon, StarIcon, BoltIcon, UserCircleIcon } from '../icons';
-import { getCollaborationsStream, getCollabRequestsStream, getSentCollabRequestsStream, acceptCollabRequest, deleteCollabRequest, getUser } from '../../services/firebase';
+import React from 'react';
+import type { UserData, Creator } from '../../types';
+import { BriefcaseIcon, SparklesIcon, BoltIcon } from '../icons';
 
 interface DashboardScreenProps {
     currentUser: UserData;
@@ -9,195 +8,63 @@ interface DashboardScreenProps {
     onViewProfile?: (creator: Creator) => void;
 }
 
-export const DashboardScreen: React.FC<DashboardScreenProps> = ({ currentUser, setActiveTab, onViewProfile }) => {
-    const [activeCollabs, setActiveCollabs] = useState<Collaboration[]>([]);
-    const [receivedRequests, setReceivedRequests] = useState<CollabRequest[]>([]);
-    const [sentRequests, setSentRequests] = useState<CollabRequest[]>([]);
-    const [viewMode, setViewMode] = useState<'active' | 'pending' | 'sent'>('active');
-
-    useEffect(() => {
-        const unsubCollabs = getCollaborationsStream(currentUser.uid, setActiveCollabs);
-        const unsubReceived = getCollabRequestsStream(currentUser.uid, setReceivedRequests);
-        const unsubSent = getSentCollabRequestsStream(currentUser.uid, setSentRequests);
-
-        return () => {
-            unsubCollabs();
-            unsubReceived();
-            unsubSent();
-        };
-    }, [currentUser.uid]);
-
-    const handleProfileClick = async (userId: string) => {
-        if (!userId || !onViewProfile) return;
-        try {
-            const user = await getUser(userId);
-            if (user) {
-                onViewProfile(user);
-            }
-        } catch (error) {
-            console.error("Failed to load user profile", error);
-        }
-    };
-
-    const handleAccept = async (req: CollabRequest) => {
-        await acceptCollabRequest(currentUser, req);
-    };
-
-    const handleDecline = async (reqId: string) => {
-        await deleteCollabRequest(currentUser.uid, reqId);
-    };
-
+export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
     return (
-        <div className="flex flex-col h-full bg-slate-50 animate-fade-in">
-            {/* Header */}
-            <div className="sticky top-0 z-20 bg-slate-50/90 backdrop-blur-xl px-6 py-6 pb-2 border-b border-slate-100">
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Workstation</h1>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Manage Your Collabs</p>
+        <div className="flex flex-col h-full bg-slate-50 animate-fade-in relative overflow-hidden">
+            {/* Background Decorations */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-violet-600/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-16 -mb-16 pointer-events-none"></div>
 
-                {/* Tabs */}
-                <div className="flex gap-2 mt-6 overflow-x-auto hide-scrollbar">
-                    <button
-                        onClick={() => setViewMode('active')}
-                        className={`px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${viewMode === 'active' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-400 border border-slate-200'}`}
-                    >
-                        Active ({activeCollabs.length})
-                    </button>
-                    <button
-                        onClick={() => setViewMode('pending')}
-                        className={`px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${viewMode === 'pending' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-400 border border-slate-200'}`}
-                    >
-                        Received ({receivedRequests.length})
-                    </button>
-                    <button
-                        onClick={() => setViewMode('sent')}
-                        className={`px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap ${viewMode === 'sent' ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20' : 'bg-white text-slate-400 border border-slate-200'}`}
-                    >
-                        Sent ({sentRequests.length})
-                    </button>
+            {/* Header */}
+            <div className="sticky top-0 z-20 bg-slate-50/80 backdrop-blur-xl px-6 py-6 pb-4 border-b border-slate-100/50">
+                <div className="flex items-center gap-2">
+                    <BriefcaseIcon className="w-6 h-6 text-slate-900" />
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight">Brand Hub</h1>
                 </div>
             </div>
 
-            <div className="flex-grow p-6 overflow-y-auto pb-32 space-y-6">
+            {/* Main Content */}
+            <div className="flex-grow flex flex-col items-center justify-center p-8 text-center pb-32">
 
-                {/* Content Area */}
-                <div className="min-h-[200px]">
-                    {viewMode === 'active' && (
-                        <div className="space-y-4">
-                            {activeCollabs.length === 0 ? (
-                                <div className="text-center py-10 opacity-50">
-                                    <BriefcaseIcon className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                                    <p className="text-sm font-bold text-slate-400">No active projects yet.</p>
-                                </div>
-                            ) : (
-                                activeCollabs.map(collab => (
-                                    <div key={collab.id} className="bg-white p-5 rounded-[2rem] soft-shadow-sm border border-slate-100">
-                                        <div className="flex justify-between items-start mb-3">
-                                            <h3 className="font-bold text-slate-900">{collab.projectName}</h3>
-                                            <span className="bg-green-100 text-green-600 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">Active</span>
-                                        </div>
-                                        <p className="text-xs text-slate-500 mb-4 line-clamp-2">{collab.description}</p>
-                                        <div className="flex -space-x-2">
-                                            {collab.participantIds.map(uid => (
-                                                <div key={uid} className="w-8 h-8 rounded-full bg-slate-200 border-2 border-white overflow-hidden cursor-pointer hover:ring-2 hover:ring-violet-300 transition-all" onClick={() => handleProfileClick(uid)}>
-                                                    <img src={collab.participants[uid]?.photoURL} alt="" className="w-full h-full object-cover" />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    )}
-
-                    {viewMode === 'pending' && (
-                        <div className="space-y-4">
-                            {receivedRequests.length === 0 ? (
-                                <div className="text-center py-10 opacity-50">
-                                    <BoltIcon className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                                    <p className="text-sm font-bold text-slate-400">No requests received.</p>
-                                </div>
-                            ) : (
-                                receivedRequests.map(req => (
-                                    <div key={req.id} className="bg-white p-5 rounded-[2rem] soft-shadow-sm border border-slate-100 relative overflow-hidden">
-                                        <div className="flex gap-4 mb-4">
-                                            <img src={req.senderPhoto} alt="" className="w-12 h-12 rounded-xl bg-slate-200 object-cover cursor-pointer hover:ring-2 hover:ring-violet-300 transition-all" onClick={() => handleProfileClick(req.senderId)} />
-                                            <div>
-                                                <h4 className="font-bold text-slate-900 text-sm">{req.senderName}</h4>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Wants to Collab</p>
-                                            </div>
-                                        </div>
-                                        <div className="bg-slate-50 p-3 rounded-xl mb-4">
-                                            <p className="text-xs font-bold text-slate-700 mb-1">{req.projectName}</p>
-                                            <p className="text-xs text-slate-500">{req.description}</p>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Date: {req.dates}</p>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <button
-                                                onClick={() => handleDecline(req.id)}
-                                                className="py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold text-xs uppercase tracking-wide hover:bg-slate-50"
-                                            >
-                                                Decline
-                                            </button>
-                                            <button
-                                                onClick={() => handleAccept(req)}
-                                                className="py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wide shadow-lg shadow-slate-900/20 hover:scale-105 active:scale-95 transition-transform"
-                                            >
-                                                Accept
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    )}
-
-                    {viewMode === 'sent' && (
-                        <div className="space-y-4">
-                            {sentRequests.length === 0 ? (
-                                <div className="text-center py-10 opacity-50">
-                                    <UserCircleIcon className="w-12 h-12 mx-auto text-slate-300 mb-2" />
-                                    <p className="text-sm font-bold text-slate-400">No requests sent.</p>
-                                </div>
-                            ) : (
-                                sentRequests.map(req => (
-                                    <div key={req.id} className="bg-white p-5 rounded-[2rem] soft-shadow-sm border border-slate-100 opacity-80 hover:opacity-100 transition-opacity">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h4 className="font-bold text-slate-900 text-sm">{req.projectName}</h4>
-                                            <span className="bg-amber-100 text-amber-600 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">Pending</span>
-                                        </div>
-                                        <p className="text-xs text-slate-500 mb-3">{req.description}</p>
-                                        <button
-                                            onClick={() => handleDecline(req.id)}
-                                            className="text-[10px] font-bold text-red-400 uppercase tracking-widest hover:text-red-500"
-                                        >
-                                            Cancel Request
-                                        </button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Brand Campaigns (Static/Promo) */}
-                <div className="pt-8 border-t border-slate-100">
-                    <h3 className="text-lg font-black text-slate-900 mb-6 px-2 flex items-center gap-3">
-                        Brand Opportunities
-                        <span className="bg-violet-100 text-violet-600 text-[10px] px-3 py-1 rounded-full font-bold shadow-sm">Featured</span>
-                    </h3>
-
-                    {/* Reuse existing brand cards logic but simplified */}
-                    <div className="bg-slate-900 rounded-[2.5rem] p-6 text-white relative overflow-hidden soft-shadow-lg mb-6">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-violet-600/20 rounded-full blur-2xl -mr-8 -mt-8"></div>
-                        <div className="relative z-10">
-                            <h2 className="text-xl font-black mb-2">Exclusive Campaigns</h2>
-                            <p className="text-slate-400 text-xs mb-4">Connect with top-tier brands.</p>
-                            <button className="px-6 py-3 bg-white text-slate-900 rounded-full font-black text-[10px] uppercase tracking-widest">
-                                Apply Now
-                            </button>
+                {/* Icon Container with Animation */}
+                <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-violet-500 blur-2xl opacity-20 animate-pulse rounded-full"></div>
+                    <div className="w-24 h-24 bg-gradient-to-tr from-slate-900 to-slate-800 rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-slate-900/20 relative z-10 rotate-3 transition-transform hover:rotate-0 duration-500 cursor-pointer group">
+                        <BoltIcon className="w-10 h-10 text-white group-hover:scale-110 transition-transform duration-300" />
+                        <div className="absolute -right-2 -top-2 bg-white text-slate-900 text-[10px] font-black px-2 py-1 rounded-full shadow-lg border-2 border-slate-50">
+                            WIP
                         </div>
                     </div>
                 </div>
+
+                <h2 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">
+                    Something Extraordinary<br />is Coming
+                </h2>
+
+                <p className="text-sm text-slate-500 font-medium leading-relaxed max-w-xs mx-auto mb-8">
+                    We are building a premium marketplace for you to collaborate with world-class brands.
+                    <span className="block mt-2 text-violet-600 font-bold">Stay tuned!</span>
+                </p>
+
+                {/* Progress Bar Visual */}
+                <div className="w-full max-w-[200px] h-1.5 bg-slate-200 rounded-full overflow-hidden mb-8">
+                    <div className="h-full bg-slate-900 w-[70%] rounded-full animate-[shimmer_2s_infinite]"></div>
+                </div>
+
+                <button
+                    onClick={() => alert("You've been added to the waitlist!")}
+                    className="group relative px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest overflow-hidden shadow-lg shadow-slate-900/20 active:scale-95 transition-all"
+                >
+                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    <span className="relative flex items-center gap-2">
+                        <SparklesIcon className="w-4 h-4" />
+                        Notify Me
+                    </span>
+                </button>
+
+                <p className="mt-8 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                    Estimated Launch: Q4 2026
+                </p>
             </div>
         </div>
     );

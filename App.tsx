@@ -299,6 +299,33 @@ const App: React.FC = () => {
         return () => unsubscribeSnapshot();
     }, [authUserId]);
 
+    // Monitor User Location on Launch
+    useEffect(() => {
+        if (!userData || !authUserId || authUserId === 'mock-user-123') return;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+
+                    // Simple check to avoid unnecessary writes if location hasn't changed significantly (e.g. < 100m)
+                    // But to ensure freshness for the 60km radius, we'll update if they are different at all in our precision.
+                    // Using a small epsilon to avoid float jitter if needed, but direct comparison is usually fine for a trigger check.
+                    const isDifferent = userData.lat !== latitude || userData.lng !== longitude;
+
+                    if (isDifferent) {
+                        // console.log("Updating user location:", latitude, longitude);
+                        handleUpdateUserData({ lat: latitude, lng: longitude });
+                    }
+                },
+                (error) => {
+                    console.warn("Location monitoring failed:", error);
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        }
+    }, [userData?.uid, authUserId]); // Re-run if user changes, checking equality inside to prevent duplication
+
     const handleUpdateUserData = useCallback(async (data: Partial<UserData>) => {
         if (!userData) return;
 
