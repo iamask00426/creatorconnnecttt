@@ -15,6 +15,7 @@ import {
 import { SEED_USERS } from '../utils/seedData';
 import type { Creator, Collaboration, Feedback, BlogPost } from '../types';
 import { UserEditModal } from './modals/UserEditModal';
+import { UserDetailModal } from './modals/UserDetailModal'; // Import Detail Modal
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 type AdminTab = 'overview' | 'users' | 'collabs' | 'feedback' | 'blog';
@@ -60,6 +61,10 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     // Edit Modal State
     const [editingUser, setEditingUser] = useState<Creator | null>(null);
     const [showEditModal, setShowEditModal] = useState(false);
+
+    // View Modal State
+    const [viewingUser, setViewingUser] = useState<Creator | null>(null);
+    const [showViewModal, setShowViewModal] = useState(false);
 
     // Blog State
     const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -335,6 +340,11 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         setShowEditModal(true);
     };
 
+    const handleViewClick = (user: Creator) => {
+        setViewingUser(user);
+        setShowViewModal(true);
+    };
+
     const handleSaveUser = (updatedUser: Creator) => {
         // Optimistic update (real-time listener will also update, but this feels faster)
         setUsers(prev => prev.map(u => u.uid === updatedUser.uid ? updatedUser : u));
@@ -527,28 +537,60 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 try { return d.toDate ? d.toDate().toISOString() : new Date(d).toISOString(); } catch { return ''; }
             };
 
-            const headers = ['UID', 'Display Name', 'Email', 'Niche', 'Gender', 'Instagram', 'Verified', 'Followers', 'Location', 'Status', 'Collabs', 'Rating', 'Created At'];
+            const headers = [
+                'UID', 'Display Name', 'Email', 'Photo URL', 'Niche', 'Follower Count', 'Bio', 'Open to Collab', 'Location',
+                'Instagram', 'Instagram Verified', 'YouTube', 'TikTok', 'Twitter', 'LinkedIn', 'Facebook', 'Twitch', 'Pinterest', 'GitHub', 'Snapchat',
+                'Portfolio', 'Past Collaborations', 'Custom Rates', 'Saved Profiles', 'Created At',
+                'Latitude', 'Longitude', 'Collabs Count', 'Rating', 'Rating Count',
+                'Phone Number', 'Phone Verified', 'Date of Birth', 'Gender', 'City', 'Country', 'Profile Status'
+            ];
+
             const rows = users.map(u => [
                 u.uid || '',
                 u.displayName || '',
                 u.email || '',
+                u.photoURL || '',
                 u.niche || '',
-                (u as any).gender || '',
+                u.followerCount || 0,
+                u.bio || '',
+                u.openToCollab ? 'Yes' : 'No',
+                u.location || '',
                 u.instagram || '',
                 u.instagramVerified ? 'Yes' : 'No',
-                u.followerCount || 0,
-                u.location || '',
-                u.profileStatus || '',
+                u.youtube || '',
+                u.tiktok || '',
+                u.twitter || '',
+                u.linkedin || '',
+                u.facebook || '',
+                u.twitch || '',
+                u.pinterest || '',
+                u.github || '',
+                u.snapchat || '',
+                (u.portfolio || []).join(', '),
+                (u.pastCollaborations || []).map(pc => pc.title).join('; '),
+                u.customRates || '',
+                (u.savedProfiles || []).join(', '),
+                safeDate(u.createdAt),
+                u.lat || '',
+                u.lng || '',
                 u.collabs || 0,
                 u.rating || 0,
-                safeDate(u.createdAt),
+                u.ratingCount || 0,
+                (u as any).phoneNumber || '',
+                (u as any).phoneNumberVerified ? 'Yes' : 'No',
+                (u as any).dateOfBirth || '',
+                (u as any).gender || '',
+                (u as any).city || '',
+                (u as any).country || '',
+                u.profileStatus || ''
             ]);
+
             const csvContent = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `creatorconnect-users-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.download = `creatorconnect-users-full-${new Date().toISOString().slice(0, 10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -836,75 +878,153 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200">
-                                <th className="p-4 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">User</th>
-                                <th className="p-4 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Status</th>
-                                <th className="p-4 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Gender</th>
-                                <th className="p-4 py-5 text-xs font-black text-slate-400 uppercase tracking-wider">Contact</th>
-                                <th className="p-4 py-5 text-xs font-black text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                            <tr className="border-b border-slate-100 text-xs text-slate-400 uppercase tracking-wider">
+                                <th className="p-4 whitespace-nowrap">UID</th>
+                                <th className="p-4 whitespace-nowrap">Display Name</th>
+                                <th className="p-4 whitespace-nowrap">Email</th>
+                                <th className="p-4 whitespace-nowrap">Photo</th>
+                                <th className="p-4 whitespace-nowrap">Niche</th>
+                                <th className="p-4 whitespace-nowrap">Followers</th>
+                                <th className="p-4 whitespace-nowrap">Bio</th>
+                                <th className="p-4 whitespace-nowrap">Open to Collab</th>
+                                <th className="p-4 whitespace-nowrap">Location</th>
+                                <th className="p-4 whitespace-nowrap">Instagram</th>
+                                <th className="p-4 whitespace-nowrap">Verified</th>
+                                <th className="p-4 whitespace-nowrap">YouTube</th>
+                                <th className="p-4 whitespace-nowrap">TikTok</th>
+                                <th className="p-4 whitespace-nowrap">Twitter</th>
+                                <th className="p-4 whitespace-nowrap">LinkedIn</th>
+                                <th className="p-4 whitespace-nowrap">Facebook</th>
+                                <th className="p-4 whitespace-nowrap">Twitch</th>
+                                <th className="p-4 whitespace-nowrap">Pinterest</th>
+                                <th className="p-4 whitespace-nowrap">GitHub</th>
+                                <th className="p-4 whitespace-nowrap">Snapchat</th>
+                                <th className="p-4 whitespace-nowrap">Portfolio</th>
+                                <th className="p-4 whitespace-nowrap">Past Collabs</th>
+                                <th className="p-4 whitespace-nowrap">Custom Rates</th>
+                                <th className="p-4 whitespace-nowrap">Saved Profiles</th>
+                                <th className="p-4 whitespace-nowrap">Created At</th>
+                                <th className="p-4 whitespace-nowrap">Lat</th>
+                                <th className="p-4 whitespace-nowrap">Lng</th>
+                                <th className="p-4 whitespace-nowrap">Collabs</th>
+                                <th className="p-4 whitespace-nowrap">Rating</th>
+                                <th className="p-4 whitespace-nowrap">Rating Count</th>
+                                <th className="p-4 whitespace-nowrap">Phone</th>
+                                <th className="p-4 whitespace-nowrap">Phone Verified</th>
+                                <th className="p-4 whitespace-nowrap">DOB</th>
+                                <th className="p-4 whitespace-nowrap">Gender</th>
+                                <th className="p-4 whitespace-nowrap">City</th>
+                                <th className="p-4 whitespace-nowrap">Country</th>
+                                <th className="p-4 whitespace-nowrap">Status</th>
+                                <th className="p-4 whitespace-nowrap text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-50">
                             {filteredUsers.map(user => (
-                                <tr key={user.uid} className="hover:bg-slate-50/50 transition-colors">
-                                    <td className="p-4">
+                                <tr key={user.uid} className="hover:bg-slate-50 transition-colors">
+                                    <td className="p-4 whitespace-nowrap text-sm font-mono text-slate-500">{user.uid.substring(0, 8)}...</td>
+                                    <td className="p-4 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
                                             <img
                                                 src={user.photoURL || 'https://via.placeholder.com/40'}
-                                                alt=""
-                                                className="w-10 h-10 rounded-full object-cover bg-slate-200"
+                                                alt={user.displayName}
+                                                className="w-10 h-10 rounded-full object-cover shadow-sm bg-white"
                                             />
-                                            <div>
-                                                <p className="font-bold text-slate-900 text-sm">{user.displayName || 'Unnamed User'}</p>
-                                                <p className="text-xs text-slate-500 font-medium">{user.niche || 'No Niche'}</p>
-                                            </div>
+                                            <span className="font-bold text-slate-900">{user.displayName}</span>
                                         </div>
                                     </td>
-                                    <td className="p-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize
-                                            ${user.profileStatus === 'active' ? 'bg-green-100 text-green-700' :
-                                                user.profileStatus === 'pending' ? 'bg-amber-100 text-amber-700' :
-                                                    user.profileStatus === 'rejected' ? 'bg-red-100 text-red-700' :
-                                                        'bg-slate-100 text-slate-700'
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.email}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm"><a href={user.photoURL} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">View</a></td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.niche}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm font-semibold">{user.followerCount?.toLocaleString()}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-500 max-w-xs overflow-hidden text-ellipsis" title={user.bio}>{user.bio}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm">{user.openToCollab ? 'Yes' : 'No'}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.location}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.instagram}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm">{user.instagramVerified ? '✅' : '❌'}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.youtube}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.tiktok}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.twitter}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.linkedin}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.facebook}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.twitch}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.pinterest}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.github}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.snapchat}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.portfolio?.length || 0} items</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.pastCollaborations?.length || 0} items</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.customRates}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.savedProfiles?.length || 0} items</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-500">
+                                        {(() => {
+                                            try {
+                                                return user.createdAt?.toDate ? user.createdAt.toDate().toLocaleDateString() : new Date(user.createdAt).toLocaleDateString();
+                                            } catch { return 'N/A'; }
+                                        })()}
+                                    </td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.lat}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.lng}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.collabs}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.rating}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.ratingCount}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.phoneNumber}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm">{user.phoneNumberVerified ? '✅' : '❌'}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.dateOfBirth}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.gender}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.city}</td>
+                                    <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.country}</td>
+                                    <td className="p-4 whitespace-nowrap">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${user.profileStatus === 'active' ? 'bg-green-100 text-green-700' :
+                                            user.profileStatus === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                                'bg-red-100 text-red-700'
                                             }`}>
-                                            {user.profileStatus || 'unknown'}
+                                            {user.profileStatus}
                                         </span>
                                     </td>
-                                    <td className="p-4">
-                                        <span className="text-xs font-bold text-slate-600 capitalize">{user.gender || '-'}</span>
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="space-y-1">
-                                            <p className="text-xs font-medium text-slate-600">{user.email}</p>
-                                            {user.instagram && <p className="text-xs font-bold text-violet-600">@{user.instagram}</p>}
-                                        </div>
-                                    </td>
-                                    <td className="p-4 text-right">
+                                    <td className="p-4 whitespace-nowrap text-right">
                                         <div className="flex items-center justify-end gap-2">
+                                            {/* Edit Button */}
                                             <button
                                                 onClick={() => handleEditClick(user)}
-                                                className="px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-slate-200 transition-colors"
+                                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors group relative"
+                                                title="Edit User"
                                             >
-                                                Edit
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                                <span className="sr-only">Edit</span>
                                             </button>
-                                            {user.profileStatus !== 'active' && (
-                                                <button onClick={() => handleStatusUpdate(user.uid, 'active')} className="px-3 py-1.5 bg-green-50 text-green-700 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-green-100">Approve</button>
+
+                                            {/* View Button */}
+                                            <button
+                                                onClick={() => handleViewClick(user)}
+                                                className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-lg transition-colors"
+                                                title="View Details"
+                                            >
+                                                <span className="text-xs font-bold px-2 py-1 bg-violet-100 text-violet-700 rounded">VIEW</span>
+                                            </button>
+
+                                            {/* Approve Button (Only for Pending) */}
+                                            {user.profileStatus === 'pending' && (
+                                                <button
+                                                    onClick={() => handleUpdateStatus(user.uid, 'active')}
+                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                    title="Approve User"
+                                                >
+                                                    <span className="text-xs font-bold px-2 py-1 bg-green-100 text-green-700 rounded">APPROVE</span>
+                                                </button>
                                             )}
-                                            {user.profileStatus !== 'pending' && (
-                                                <button onClick={() => handleStatusUpdate(user.uid, 'pending')} className="px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-amber-100">Pending</button>
-                                            )}
-                                            {user.profileStatus !== 'rejected' && (
-                                                <button onClick={() => handleDeleteUser(user.uid)} className="px-3 py-1.5 bg-red-50 text-red-700 text-xs font-black uppercase tracking-wider rounded-lg hover:bg-red-100">Delete</button>
-                                            )}
+
+                                            {/* Delete Button */}
+                                            <button
+                                                onClick={() => handleDeleteUser(user.uid)}
+                                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Delete User"
+                                            >
+                                                <span className="text-xs font-bold px-2 py-1 bg-red-100 text-red-700 rounded">DELETE</span>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
-                            {filteredUsers.length === 0 && (
-                                <tr>
-                                    <td colSpan={4} className="p-8 text-center text-slate-400 font-bold text-sm">No users found.</td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>
@@ -1360,6 +1480,13 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     user={editingUser}
                     onClose={() => setShowEditModal(false)}
                     onSave={handleSaveUser}
+                />
+            )}
+
+            {showViewModal && viewingUser && (
+                <UserDetailModal
+                    user={viewingUser}
+                    onClose={() => setShowViewModal(false)}
                 />
             )}
         </div>

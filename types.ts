@@ -44,6 +44,7 @@ export interface Creator {
     snapchat: string;
     portfolio: string[];
     pastCollaborations?: PastCollaboration[];
+    customRates?: string; // Added custom rates field
     savedProfiles?: string[]; // Added saved profiles list
     schedule?: CalendarEvent[]; // Added schedule for calendar
     createdAt: Date;
