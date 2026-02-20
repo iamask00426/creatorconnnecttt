@@ -75,6 +75,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     });
     const [blogImageUploading, setBlogImageUploading] = useState(false);
     const [editorMode, setEditorMode] = useState<'write' | 'preview'>('write');
+    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month' | 'year'>('all');
     const [editorFullscreen, setEditorFullscreen] = useState(false);
     const contentRef = useRef<HTMLTextAreaElement>(null);
 
@@ -614,13 +615,33 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const filteredUsers = users.filter(u => {
         const matchesFilter = userFilter === 'all' || u.profileStatus === userFilter;
         const searchLower = searchQuery.toLowerCase();
+
+        let matchesDate = true;
+        if (dateFilter !== 'all' && u.createdAt) {
+            const createdAtDate = u.createdAt?.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+            const now = new Date();
+
+            if (dateFilter === 'today') {
+                matchesDate = createdAtDate.toDateString() === now.toDateString();
+            } else if (dateFilter === 'week') {
+                const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                matchesDate = createdAtDate >= oneWeekAgo;
+            } else if (dateFilter === 'month') {
+                const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                matchesDate = createdAtDate >= oneMonthAgo;
+            } else if (dateFilter === 'year') {
+                const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                matchesDate = createdAtDate >= oneYearAgo;
+            }
+        }
+
         const matchesSearch = (
             (u.displayName || '').toLowerCase().includes(searchLower) ||
             (u.email || '').toLowerCase().includes(searchLower) ||
             (u.niche || '').toLowerCase().includes(searchLower) ||
             (u.instagram || '').toLowerCase().includes(searchLower)
         );
-        return matchesFilter && matchesSearch;
+        return matchesFilter && matchesSearch && matchesDate;
     });
 
     // Prepare Chart Data
@@ -638,8 +659,27 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
     const nicheData = Object.entries(nicheCounts)
         .map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value)
+        .sort((a, b) => Number(b.value) - Number(a.value))
         .slice(0, 5); // Top 5 niches
+
+    const genderCounts = users.reduce((acc, user) => {
+        // user.gender might be on user or 'any' type casted earlier
+        const gender = (user as any).gender ? String((user as any).gender).trim() : 'Unknown';
+
+        // Normalize common genders
+        let normalizedGender = gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase();
+        if (normalizedGender === '') normalizedGender = 'Unknown';
+        if (['Male', 'M'].includes(normalizedGender)) normalizedGender = 'Male';
+        if (['Female', 'F'].includes(normalizedGender)) normalizedGender = 'Female';
+        if (normalizedGender.toLowerCase().includes('prefer not to say')) normalizedGender = 'Unknown';
+
+        acc[normalizedGender] = (acc[normalizedGender] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const genderData = Object.entries(genderCounts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => Number(b.value) - Number(a.value));
 
     const renderSidebar = () => (
         <aside className="w-64 bg-white border-r border-slate-200 min-h-screen fixed left-0 top-0 bottom-0 z-40 hidden md:flex flex-col">
@@ -701,7 +741,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
                     <h3 className="text-lg font-bold text-slate-900 mb-4">User Status Distribution</h3>
                     <div className="h-64 w-full">
@@ -743,6 +783,31 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                 >
                                     {nicheData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Gender Distribution</h3>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={genderData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {genderData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <Tooltip />
@@ -857,6 +922,18 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
+                    <select
+                        value={dateFilter}
+                        onChange={(e) => setDateFilter(e.target.value as any)}
+                        className="px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 bg-white font-semibold text-sm text-slate-600 appearance-none pr-8 relative min-w-[140px]"
+                        style={{ backgroundImage: 'linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%)', backgroundPosition: 'calc(100% - 15px) calc(1em + 2px), calc(100% - 10px) calc(1em + 2px)', backgroundSize: '5px 5px, 5px 5px', backgroundRepeat: 'no-repeat' }}
+                    >
+                        <option value="all">🗓️ All Dates</option>
+                        <option value="today">📅 Today</option>
+                        <option value="week">📅 Past Week</option>
+                        <option value="month">📅 Past Month</option>
+                        <option value="year">📅 Past Year</option>
+                    </select>
                     <div className="flex gap-2 bg-white p-1 rounded-xl border border-slate-200 overflow-x-auto">
                         {(['all', 'pending', 'active', 'rejected'] as const).map(f => (
                             <button
@@ -1005,7 +1082,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                             {/* Approve Button (Only for Pending) */}
                                             {user.profileStatus === 'pending' && (
                                                 <button
-                                                    onClick={() => handleUpdateStatus(user.uid, 'active')}
+                                                    onClick={() => handleStatusUpdate(user.uid, 'active')}
                                                     className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                     title="Approve User"
                                                 >
