@@ -75,7 +75,9 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     });
     const [blogImageUploading, setBlogImageUploading] = useState(false);
     const [editorMode, setEditorMode] = useState<'write' | 'preview'>('write');
-    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month' | 'year'>('all');
+    const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'week' | 'month' | 'year' | 'custom'>('all');
+    const [customStartDate, setCustomStartDate] = useState('');
+    const [customEndDate, setCustomEndDate] = useState('');
     const [editorFullscreen, setEditorFullscreen] = useState(false);
     const contentRef = useRef<HTMLTextAreaElement>(null);
 
@@ -632,6 +634,18 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             } else if (dateFilter === 'year') {
                 const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
                 matchesDate = createdAtDate >= oneYearAgo;
+            } else if (dateFilter === 'custom') {
+                const start = customStartDate ? new Date(customStartDate) : null;
+                const end = customEndDate ? new Date(customEndDate) : null;
+
+                if (start) {
+                    start.setHours(0, 0, 0, 0);
+                    if (createdAtDate < start) matchesDate = false;
+                }
+                if (end) {
+                    end.setHours(23, 59, 59, 999);
+                    if (createdAtDate > end) matchesDate = false;
+                }
             }
         }
 
@@ -922,18 +936,40 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
-                    <select
-                        value={dateFilter}
-                        onChange={(e) => setDateFilter(e.target.value as any)}
-                        className="px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 bg-white font-semibold text-sm text-slate-600 appearance-none pr-8 relative min-w-[140px]"
-                        style={{ backgroundImage: 'linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%)', backgroundPosition: 'calc(100% - 15px) calc(1em + 2px), calc(100% - 10px) calc(1em + 2px)', backgroundSize: '5px 5px, 5px 5px', backgroundRepeat: 'no-repeat' }}
-                    >
-                        <option value="all">🗓️ All Dates</option>
-                        <option value="today">📅 Today</option>
-                        <option value="week">📅 Past Week</option>
-                        <option value="month">📅 Past Month</option>
-                        <option value="year">📅 Past Year</option>
-                    </select>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                        <select
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value as any)}
+                            className="px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 bg-white font-semibold text-sm text-slate-600 appearance-none pr-8 relative min-w-[140px]"
+                            style={{ backgroundImage: 'linear-gradient(45deg, transparent 50%, gray 50%), linear-gradient(135deg, gray 50%, transparent 50%)', backgroundPosition: 'calc(100% - 15px) calc(1em + 2px), calc(100% - 10px) calc(1em + 2px)', backgroundSize: '5px 5px, 5px 5px', backgroundRepeat: 'no-repeat' }}
+                        >
+                            <option value="all">🗓️ All Dates</option>
+                            <option value="today">📅 Today</option>
+                            <option value="week">📅 Past Week</option>
+                            <option value="month">📅 Past Month</option>
+                            <option value="year">📅 Past Year</option>
+                            <option value="custom">📅 Custom Range</option>
+                        </select>
+
+                        {dateFilter === 'custom' && (
+                            <div className="flex items-center gap-2 bg-white rounded-xl border border-slate-200 p-1 px-2 shadow-sm">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">From</span>
+                                <input
+                                    type="date"
+                                    value={customStartDate}
+                                    onChange={(e) => setCustomStartDate(e.target.value)}
+                                    className="text-xs font-semibold text-slate-700 bg-transparent border-0 focus:ring-0 p-0 hover:cursor-pointer"
+                                />
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">To</span>
+                                <input
+                                    type="date"
+                                    value={customEndDate}
+                                    onChange={(e) => setCustomEndDate(e.target.value)}
+                                    className="text-xs font-semibold text-slate-700 bg-transparent border-0 focus:ring-0 p-0 hover:cursor-pointer"
+                                />
+                            </div>
+                        )}
+                    </div>
                     <div className="flex gap-2 bg-white p-1 rounded-xl border border-slate-200 overflow-x-auto">
                         {(['all', 'pending', 'active', 'rejected'] as const).map(f => (
                             <button
