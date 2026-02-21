@@ -394,6 +394,29 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
             </div>
 
             {isCollabModalOpen && <CollabRequestModal sender={currentUser} receiver={liveCreator} onClose={() => setIsCollabModalOpen(false)} />}
+
+            {/* Public Profile Signup Banner */}
+            {!currentUser?.uid && (
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-200 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-[100] animate-slide-up pb-8">
+                    <div className="max-w-md mx-auto flex items-center justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-1">
+                                Join Creator Connect <BoltIcon className="w-4 h-4 text-orange-500" />
+                            </p>
+                            <p className="text-[10px] text-slate-500 font-medium mt-0.5">Log in to chat with {liveCreator.displayName}</p>
+                        </div>
+                        <button
+                            className="auth-exempt bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap hover:scale-105 transition-transform shadow-lg shadow-black/10 active:scale-95"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (onRequireLogin) onRequireLogin();
+                            }}
+                        >
+                            Sign Up / Log In
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
