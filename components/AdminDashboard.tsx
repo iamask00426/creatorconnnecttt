@@ -619,32 +619,36 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         const searchLower = searchQuery.toLowerCase();
 
         let matchesDate = true;
-        if (dateFilter !== 'all' && u.createdAt) {
-            const createdAtDate = u.createdAt?.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
-            const now = new Date();
+        if (dateFilter !== 'all') {
+            if (!u.createdAt) {
+                matchesDate = false;
+            } else {
+                const createdAtDate = u.createdAt?.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+                const now = new Date();
 
-            if (dateFilter === 'today') {
-                matchesDate = createdAtDate.toDateString() === now.toDateString();
-            } else if (dateFilter === 'week') {
-                const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                matchesDate = createdAtDate >= oneWeekAgo;
-            } else if (dateFilter === 'month') {
-                const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-                matchesDate = createdAtDate >= oneMonthAgo;
-            } else if (dateFilter === 'year') {
-                const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-                matchesDate = createdAtDate >= oneYearAgo;
-            } else if (dateFilter === 'custom') {
-                const start = customStartDate ? new Date(customStartDate) : null;
-                const end = customEndDate ? new Date(customEndDate) : null;
+                if (dateFilter === 'today') {
+                    matchesDate = createdAtDate.toDateString() === now.toDateString();
+                } else if (dateFilter === 'week') {
+                    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    matchesDate = createdAtDate >= oneWeekAgo;
+                } else if (dateFilter === 'month') {
+                    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                    matchesDate = createdAtDate >= oneMonthAgo;
+                } else if (dateFilter === 'year') {
+                    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+                    matchesDate = createdAtDate >= oneYearAgo;
+                } else if (dateFilter === 'custom') {
+                    const start = customStartDate ? new Date(customStartDate) : null;
+                    const end = customEndDate ? new Date(customEndDate) : null;
 
-                if (start) {
-                    start.setHours(0, 0, 0, 0);
-                    if (createdAtDate < start) matchesDate = false;
-                }
-                if (end) {
-                    end.setHours(23, 59, 59, 999);
-                    if (createdAtDate > end) matchesDate = false;
+                    if (start) {
+                        start.setHours(0, 0, 0, 0);
+                        if (createdAtDate < start) matchesDate = false;
+                    }
+                    if (end) {
+                        end.setHours(23, 59, 59, 999);
+                        if (createdAtDate > end) matchesDate = false;
+                    }
                 }
             }
         }

@@ -34,10 +34,8 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
         setError('');
         setIsSending(true);
         // Simulate API call to send OTP
-        setTimeout(() => {
-            setIsSending(false);
-            setStep('otp');
-        }, 1500);
+        setIsSending(false);
+        setStep('otp');
     };
 
     const handleOtpChange = (index: number, value: string) => {
@@ -63,18 +61,14 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
         setError('');
 
         // Simulate OTP verification logic
-        setTimeout(() => {
-            if (code === '123456') {
-                setStep('success');
-                setTimeout(() => {
-                    onVerifySuccess(phoneNumber);
-                    onClose();
-                }, 1500);
-            } else {
-                setError('Invalid code. Try 123456 (Demo)');
-                setIsVerifying(false);
-            }
-        }, 1500);
+        if (code === '123456') {
+            setStep('success');
+            onVerifySuccess(phoneNumber);
+            onClose();
+        } else {
+            setError('Invalid code. Try 123456 (Demo)');
+            setIsVerifying(false);
+        }
     };
 
     const handleBack = () => {
@@ -92,16 +86,16 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                 </button>
 
                 <div className="text-center">
-                     <div className="w-20 h-20 mx-auto bg-violet-100 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
+                    <div className="w-20 h-20 mx-auto bg-violet-100 rounded-3xl flex items-center justify-center mb-6 shadow-inner">
                         <PhoneIcon className="w-10 h-10 text-violet-600" />
                     </div>
-                    
+
                     {step === 'input' && (
                         <>
                             <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Add Phone Number</h2>
                             <p className="text-xs text-slate-500 mb-8 font-medium leading-relaxed">We'll send a verification code to this number.</p>
-                            
-                            <input 
+
+                            <input
                                 type="tel"
                                 value={phoneNumber}
                                 onChange={(e) => setPhoneNumber(e.target.value)}
@@ -111,7 +105,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
 
                             {error && <p className="text-[10px] text-red-500 font-bold mb-4">{error}</p>}
 
-                            <button 
+                            <button
                                 onClick={handleSendCode}
                                 disabled={isSending}
                                 className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-slate-900/20 hover:bg-slate-800 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
@@ -122,10 +116,10 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                     )}
 
                     {step === 'otp' && (
-                         <>
+                        <>
                             <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Verify Code</h2>
                             <p className="text-xs text-slate-500 mb-8 font-medium leading-relaxed">Enter the 6-digit code sent to {phoneNumber}</p>
-                            
+
                             <div className="flex gap-2 justify-center mb-6">
                                 {otp.map((digit, i) => (
                                     <input
@@ -142,14 +136,14 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
 
                             {error && <p className="text-[10px] text-red-500 font-bold mb-4">{error}</p>}
 
-                            <button 
+                            <button
                                 onClick={handleVerify}
                                 disabled={isVerifying}
                                 className="w-full py-4 bg-violet-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-500/20 hover:bg-violet-700 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                             >
                                 {isVerifying ? 'Verifying...' : 'Verify'}
                             </button>
-                            
+
                             <button onClick={handleBack} className="mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:text-slate-600">
                                 Change Number
                             </button>

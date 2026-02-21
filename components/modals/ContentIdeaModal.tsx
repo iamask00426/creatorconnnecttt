@@ -99,11 +99,9 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
 
         if (isOffline) {
             setStatusLog(["[OFFLINE] No API Key detected", "[SYSTEM] Activating Offline Generator...", "[SYNC] Creating unique combinations..."]);
-            setTimeout(() => {
-                const uniqueIdeas = generateMockIdeas(targetCity, userData.niche);
-                setIdeas(uniqueIdeas);
-                setIsLoading(false);
-            }, 1500);
+            const uniqueIdeas = generateMockIdeas(targetCity, userData.niche);
+            setIdeas(uniqueIdeas);
+            setIsLoading(false);
             return;
         }
 
@@ -175,12 +173,9 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
             console.error("Content generation error:", error);
             setStatusLog(prev => [...prev, "[ERROR] Connection interrupted. Generating fallback concepts..."]);
 
-            // Fallback for failed API call
-            setTimeout(() => {
-                const uniqueIdeas = generateMockIdeas(targetCity, userData.niche);
-                setIdeas(uniqueIdeas);
-                setIsLoading(false);
-            }, 1500);
+            const uniqueIdeas = generateMockIdeas(targetCity, userData.niche);
+            setIdeas(uniqueIdeas);
+            setIsLoading(false);
         }
     };
 

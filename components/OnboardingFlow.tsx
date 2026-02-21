@@ -101,11 +101,9 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
         setIsSubmitting(true);
 
         // Bypassing verification - just collecting username
-        setTimeout(() => {
-            setVerificationStatus('success');
-            // Allow completion without actual verification check
-            setTimeout(() => submitProfile(true), 1000);
-        }, 1500);
+        setVerificationStatus('success');
+        // Allow completion without actual verification check
+        submitProfile(true);
     };
 
     const submitProfile = async (verified: boolean) => {
