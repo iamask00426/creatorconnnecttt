@@ -191,7 +191,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser, chatPartner
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div className="relative cursor-pointer" onClick={() => onViewProfile?.(chatPartner)}>
-                    <img src={chatPartner.photoURL} className="w-10 h-10 rounded-full object-cover border border-slate-200 bg-slate-100 hover:ring-2 hover:ring-violet-300 transition-all" alt={chatPartner.displayName} />
+                    <img src={chatPartner.photoURL} referrerPolicy="no-referrer" className="w-10 h-10 rounded-full object-cover border border-slate-200 bg-slate-100 hover:ring-2 hover:ring-violet-300 transition-all" alt={chatPartner.displayName} />
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
                 <div className="ml-3 cursor-pointer" onClick={() => onViewProfile?.(chatPartner)}>
@@ -225,7 +225,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser, chatPartner
                                     : 'bg-white border border-slate-200 text-slate-800 rounded-2xl rounded-tl-sm'
                                     } ${msg.status === 'pending' ? 'opacity-70' : ''}`}>
                                     {msg.type === 'image' && msg.mediaUrl && (
-                                        <img src={msg.mediaUrl} className="w-full max-w-[200px] rounded-lg object-cover mb-1 border border-white/20" alt="Sent media" />
+                                        <img src={msg.mediaUrl} referrerPolicy="no-referrer" className="w-full max-w-[200px] rounded-lg object-cover mb-1 border border-white/20" alt="Sent media" />
                                     )}
                                     {msg.text && <p className="leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>}
                                 </div>

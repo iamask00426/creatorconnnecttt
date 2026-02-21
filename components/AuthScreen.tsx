@@ -45,6 +45,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = () => {
                         <span className="text-[10px] font-black uppercase tracking-widest">Continue with Google</span>
                     </button>
 
+                    <button onClick={() => {
+                        // Demo Login Bypass
+                        localStorage.setItem('demoLoginActive', 'true');
+                        window.location.reload();
+                    }} className="w-full mt-4 py-4 flex items-center justify-center gap-3 bg-slate-800 text-white rounded-2xl hover:bg-slate-700 active:scale-95 transition-all shadow-xl shadow-white/5">
+                        <BoltIcon className="w-5 h-5 text-orange-500" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Test Demo Login</span>
+                    </button>
+
                     <p className="mt-8 text-[9px] text-slate-500 font-medium max-w-[200px]">
                         By continuing, you agree to our Terms of Service and Privacy Policy.
                     </p>

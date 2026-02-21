@@ -15,12 +15,15 @@ interface ExploreScreenProps {
 }
 
 const CreatorListCard: React.FC<{ creator: Creator; onClick: () => void; style: React.CSSProperties }> = ({ creator, onClick, style }) => (
-    <div 
+    <div
         onClick={onClick}
         style={style}
-        className="flex items-center space-x-5 p-4 bg-white rounded-[2rem] soft-shadow-sm hover:soft-shadow-md cursor-pointer transition-all animate-fade-in-up active:scale-[0.98]"
+        className="group flex items-center space-x-5 p-4 bg-white rounded-[2rem] soft-shadow-sm hover:soft-shadow-md cursor-pointer transition-all animate-fade-in-up active:scale-[0.98]"
     >
-        <img src={creator.photoURL || 'https://picsum.photos/seed/placeholder/100/100'} className="w-16 h-16 rounded-2xl object-cover bg-slate-100" alt={creator.displayName || 'Creator'} />
+        <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-2xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
+            <img src={creator.photoURL || 'https://picsum.photos/seed/placeholder/100/100'} referrerPolicy="no-referrer" className="relative w-16 h-16 rounded-2xl object-cover bg-slate-100 ring-2 ring-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.08)]" alt={creator.displayName || 'Creator'} />
+        </div>
         <div className="flex-grow">
             <h3 className="font-bold text-slate-900 text-base">{creator.displayName || 'Unknown Creator'}</h3>
             <p className="text-xs text-violet-600 font-bold uppercase tracking-wider mt-0.5">{creator.niche || 'General'}</p>
@@ -87,7 +90,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
 
             return nicheMatch && locationMatch && followerMatch;
         });
-        
+
         if (searchQuery.trim() !== '') {
             filtered = filtered.filter(c => {
                 const name = c.displayName || '';
@@ -97,7 +100,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
                 return name.toLowerCase().includes(query) || niche.toLowerCase().includes(query) || loc.toLowerCase().includes(query);
             });
         }
-        
+
         return filtered;
     }, [filters, searchQuery, creators, currentUser.uid]);
 
@@ -107,14 +110,14 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Explore</h1>
                     <div className="flex bg-white rounded-full p-1 shadow-sm" data-tour-id="view-toggle">
-                        <button 
-                            onClick={() => setViewMode('list')} 
+                        <button
+                            onClick={() => setViewMode('list')}
                             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400'}`}
                         >
                             List
                         </button>
-                        <button 
-                            onClick={() => setViewMode('map')} 
+                        <button
+                            onClick={() => setViewMode('map')}
                             className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${viewMode === 'map' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-400'}`}
                         >
                             Map
@@ -145,7 +148,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
 
             <main className="flex-grow relative overflow-hidden">
                 {viewMode === 'list' ? (
-                     <div className="h-full overflow-y-auto p-6 space-y-4 pb-32">
+                    <div className="h-full overflow-y-auto p-6 space-y-4 pb-32">
                         {isLoading ? (
                             Array.from({ length: 5 }).map((_, i) => <CreatorListSkeleton key={i} />)
                         ) : error ? (
@@ -154,11 +157,11 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
                             </div>
                         ) : filteredCreators.length > 0 ? (
                             filteredCreators.map((c, index) => (
-                                <CreatorListCard 
-                                    key={c.uid} 
-                                    creator={c} 
+                                <CreatorListCard
+                                    key={c.uid}
+                                    creator={c}
                                     onClick={() => onViewProfile(c)}
-                                    style={{ animationDelay: `${index * 50}ms`}} 
+                                    style={{ animationDelay: `${index * 50}ms` }}
                                 />
                             ))
                         ) : (
@@ -170,9 +173,9 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
                 ) : (
                     <div className="absolute inset-0 pb-24">
                         {isLoading ? (
-                             <div className="w-full h-full bg-slate-50 flex items-center justify-center">
-                                 <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
-                             </div>
+                            <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                                <div className="w-10 h-10 border-4 border-violet-600 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
                         ) : (
                             <MapView creators={filteredCreators} onViewProfile={onViewProfile} />
                         )}

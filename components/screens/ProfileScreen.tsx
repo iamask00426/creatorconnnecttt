@@ -285,6 +285,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         <img
                             src={editedData.portfolio?.[0] || 'https://picsum.photos/seed/bg/800/400'}
                             className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
                             alt="Cover"
                         />
                         <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
@@ -300,7 +301,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
 
                     <div className="flex flex-col items-center -mt-16 relative z-10">
                         <div className="relative group">
-                            <img src={editedData.photoURL} className="w-28 h-28 rounded-[2rem] object-cover border-4 border-white shadow-2xl bg-white" alt="Profile" />
+                            <img src={editedData.photoURL} referrerPolicy="no-referrer" className="w-28 h-28 rounded-[2rem] object-cover border-4 border-white shadow-2xl bg-white" alt="Profile" />
                             <label className="absolute -bottom-2 -right-2 w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white cursor-pointer shadow-lg hover:bg-slate-800 transition-colors z-20">
                                 <CameraIcon className="w-5 h-5" />
                                 <input type="file" className="hidden" onChange={(e) => handleFileSelect(e, 'profile')} accept="image/*" />
@@ -571,13 +572,18 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
     return (
         <div className="animate-slide-up bg-slate-50 min-h-full pb-32">
             {expandedImage && (
-                <ImageModal imageUrl={expandedImage} onClose={() => setExpandedImage(null)} />
+                <ImageModal
+                    imageUrl={expandedImage}
+                    onClose={() => setExpandedImage(null)}
+                    creator={expandedImage === userData.photoURL ? userData as Creator : undefined}
+                />
             )}
 
             <header className="relative h-56 overflow-hidden">
                 <img
                     src={userData.portfolio?.[0] || 'https://picsum.photos/seed/bg/800/400'}
                     className="w-full h-full object-cover mask-gradient-b cursor-pointer"
+                    referrerPolicy="no-referrer"
                     alt="Cover"
                     onClick={() => setExpandedImage(userData.portfolio?.[0] || 'https://picsum.photos/seed/bg/800/400')}
                 />
@@ -607,14 +613,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
             <div className="px-5 relative -mt-16 z-20">
                 <div className="bg-white rounded-[2.5rem] p-7 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-slate-100">
                     <div className="flex justify-between items-start mb-6">
-                        <div className="relative">
+                        <div className="relative z-10">
                             <img
                                 src={userData.photoURL}
-                                className="w-24 h-24 rounded-3xl object-cover border-4 border-white shadow-2xl cursor-pointer hover:scale-105 transition-transform"
+                                className="relative w-28 h-28 rounded-[2rem] border-[4px] border-white shadow-sm object-cover cursor-pointer hover:scale-105 transition-transform bg-white"
+                                referrerPolicy="no-referrer"
                                 alt="Me"
                                 onClick={() => setExpandedImage(userData.photoURL)}
                             />
-                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
+                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
                         </div>
                         <button onClick={() => setCurrentView('edit')} className="px-6 py-2.5 rounded-2xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:scale-105 active:scale-95 transition-all">Edit Profile</button>
                     </div>
@@ -655,7 +662,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         <div className="grid grid-cols-2 gap-4">
                             {userData.portfolio.slice(0, 4).map((img, i) => (
                                 <div key={i} className="aspect-square rounded-[1.75rem] overflow-hidden bg-slate-200 shadow-sm hover:shadow-md transition-shadow group cursor-pointer" onClick={() => setExpandedImage(img)}>
-                                    <img src={img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
+                                    <img src={img} referrerPolicy="no-referrer" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" />
                                 </div>
                             ))}
                         </div>
@@ -672,12 +679,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                                 src={userData.photoURL}
                                                 className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-0"
                                                 alt="Me"
+                                                referrerPolicy="no-referrer"
                                                 onClick={(e) => { e.stopPropagation(); setExpandedImage(userData.photoURL); }}
                                             />
                                             <img
                                                 src={collab.imageUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'}
                                                 className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-10"
                                                 alt="Partner"
+                                                referrerPolicy="no-referrer"
                                                 onClick={(e) => { e.stopPropagation(); setExpandedImage(collab.imageUrl); }}
                                             />
                                         </div>
@@ -713,6 +722,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                                 <img
                                                     src={rating.raterPhoto || 'https://picsum.photos/seed/unknown/100/100'}
                                                     className="w-8 h-8 rounded-full object-cover border border-slate-100 group-hover:border-violet-300 transition-colors"
+                                                    referrerPolicy="no-referrer"
                                                     alt={rating.raterName}
                                                 />
                                                 <div>

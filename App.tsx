@@ -122,23 +122,35 @@ class ErrorBoundary extends React.Component<EBProps, EBState> {
 }
 
 const SplashScreen = () => (
-    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999]">
-        <div className="relative mb-6">
-            {/* Glow effect behind logo */}
-            <div className="absolute inset-0 bg-orange-500/20 blur-3xl rounded-full animate-pulse"></div>
+    <div className="fixed inset-0 bg-[#020617] flex flex-col items-center justify-center z-[9999] overflow-hidden">
+        {/* Dynamic Background */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-tr from-orange-500/10 via-rose-500/5 to-violet-500/10 rounded-full blur-[100px] animate-pulse-slow"></div>
 
-            {/* Logo Container - Orange Gradient */}
-            <div className="w-28 h-28 bg-gradient-to-tr from-orange-500 to-rose-500 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-rose-500/30 relative z-10 animate-bounce">
-                <BoltIcon className="w-14 h-14 text-white" />
+        <div className="relative mb-8">
+            {/* Glow effect behind logo */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-orange-500 to-rose-500 blur-2xl opacity-40 rounded-full animate-pulse"></div>
+
+            {/* Logo Container - Glassmorphic */}
+            <div className="w-28 h-28 bg-white/10 backdrop-blur-xl border border-white/20 rounded-[2.5rem] flex items-center justify-center shadow-2xl relative z-10 transition-transform duration-1000 animate-float">
+                <BoltIcon className="w-14 h-14 text-orange-400 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]" />
             </div>
         </div>
 
         {/* Creator Connect Name */}
-        <h1 className="text-2xl font-black text-slate-900 tracking-tighter mb-2 animate-pulse">
-            Creator Connect
+        <h1 className="text-3xl font-black text-white tracking-tighter mb-4 flex items-center gap-1">
+            Creator
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-rose-400">
+                Connect
+            </span>
         </h1>
-        <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">
-            Initializing...
+
+        {/* Futuristic Loading Bar */}
+        <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden mt-2 relative">
+            <div className="absolute top-0 left-0 h-full w-1/2 bg-gradient-to-r from-orange-500 to-rose-500 rounded-full animate-loading-bar"></div>
+        </div>
+
+        <p className="mt-6 text-slate-500 text-[9px] font-black uppercase tracking-[0.4em] animate-pulse">
+            Establishing Connection
         </p>
     </div>
 );
@@ -224,6 +236,18 @@ const App: React.FC = () => {
 
     useEffect(() => {
         setIsLoading(true);
+
+        // Check for Demo Login bypass
+        if (localStorage.getItem('demoLoginActive') === 'true') {
+            setAuthUserId('mock-user-123');
+            if (window.location.pathname !== '/admin') {
+                window.history.replaceState({}, '', '/dashboard');
+            }
+            setShowLanding(false);
+            setShowWelcomeScreens(false);
+            return;
+        }
+
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 setAuthUserId(user.uid);
@@ -416,6 +440,11 @@ const App: React.FC = () => {
                     }}
                     onViewProfile={() => { }} // No-op for public view or implement navigation
                     onUpdateUserData={() => { }} // Read-only view
+                    onRequireLogin={() => {
+                        window.history.pushState({}, '', '/');
+                        setViewingUniqueProfile(null);
+                        setShowLanding(true);
+                    }}
                 />
             </div>
         );

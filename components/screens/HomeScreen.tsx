@@ -33,13 +33,15 @@ const deg2rad = (deg: number) => {
 const CreatorCard: React.FC<{ creator: Creator; onClick: () => void; index: number; distance?: number }> = ({ creator, onClick, index, distance }) => (
     <div
         onClick={onClick}
-        className="cursor-pointer group relative aspect-[4/5] rounded-[2rem] overflow-hidden soft-shadow-md hover:shadow-xl transition-all duration-500 animate-slide-up tap-bounce bg-white"
+        className="cursor-pointer group relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(139,92,246,0.15)] ring-1 ring-black/5 hover:ring-violet-500/30 transition-all duration-500 animate-slide-up tap-bounce bg-white"
         style={{ animationDelay: `${index * 50}ms` }}
     >
+        <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/20 to-fuchsia-500/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none mix-blend-overlay"></div>
         <img
             src={creator.photoURL || 'https://picsum.photos/seed/placeholder/400/400'}
             alt={creator.displayName || 'Creator'}
             loading="lazy"
+            referrerPolicy="no-referrer"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
 

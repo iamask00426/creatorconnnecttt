@@ -13,6 +13,7 @@ interface CreatorProfilePageProps {
     onMessage: (creator: Creator) => void;
     onViewProfile: (creator: Creator) => void;
     onUpdateUserData: (data: Partial<UserData>) => void;
+    onRequireLogin?: () => void;
 }
 
 const Stat: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
@@ -38,13 +39,27 @@ const SocialLink: React.FC<{ handle?: string; platform: string; children: React.
     );
 };
 
-export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentUser, creator: initialCreatorData, onBack, onMessage, onViewProfile, onUpdateUserData }) => {
+export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentUser, creator: initialCreatorData, onBack, onMessage, onViewProfile, onUpdateUserData, onRequireLogin }) => {
     const [isCollabModalOpen, setIsCollabModalOpen] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [liveCreator, setLiveCreator] = useState<Creator>(initialCreatorData);
     const [ratings, setRatings] = useState<any[]>([]);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
     const [isSaved, setIsSaved] = useState(false);
+
+    // Intercept clicks for unauthenticated users
+    const handleGlobalClickCapture = (e: React.MouseEvent) => {
+        if (!currentUser?.uid) {
+            const target = e.target as HTMLElement;
+            // Allow clicking the back button
+            if (target.closest('.auth-exempt')) {
+                return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+            if (onRequireLogin) onRequireLogin();
+        }
+    };
 
     // Subscribe to live updates for the creator profile to show real-time ratings/collabs
     useEffect(() => {
@@ -144,9 +159,13 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
     const isSelf = currentUser.uid === liveCreator.uid;
 
     return (
-        <div className="animate-fade-in bg-slate-50 min-h-full pb-20">
+        <div className="animate-fade-in bg-slate-50 min-h-full pb-20" onClickCapture={handleGlobalClickCapture}>
             {expandedImage && (
-                <ImageModal imageUrl={expandedImage} onClose={() => setExpandedImage(null)} />
+                <ImageModal
+                    imageUrl={expandedImage}
+                    onClose={() => setExpandedImage(null)}
+                    creator={expandedImage === liveCreator.photoURL ? liveCreator : undefined}
+                />
             )}
 
             <header className="relative h-72 w-full">
@@ -154,12 +173,13 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                     src={liveCreator.portfolio?.[0] || `https://picsum.photos/seed/${liveCreator.uid}/800/200`}
                     className="w-full h-full object-cover mask-gradient-b cursor-pointer"
                     alt="Cover"
+                    referrerPolicy="no-referrer"
                     onClick={() => setExpandedImage(liveCreator.portfolio?.[0] || `https://picsum.photos/seed/${liveCreator.uid}/800/200`)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 pointer-events-none"></div>
 
-                <button onClick={onBack} className="absolute top-4 left-4 p-2.5 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-colors shadow-lg border border-white/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                <button onClick={onBack} className="auth-exempt absolute top-4 left-4 p-2.5 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/30 transition-colors shadow-lg border border-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
                 </button>
 
                 {!isSelf && (
@@ -176,11 +196,12 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                 {/* Profile Card Info */}
                 <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-soft-lg border border-slate-100">
                     <div className="flex justify-between items-start mb-6">
-                        <div className="relative -mt-12">
+                        <div className="relative -mt-16 z-10">
                             <img
                                 src={liveCreator.photoURL}
-                                className="w-24 h-24 rounded-2xl border-4 border-white shadow-xl object-cover cursor-pointer hover:scale-105 transition-transform"
+                                className="relative w-28 h-28 rounded-[2rem] border-[4px] border-white shadow-sm object-cover cursor-pointer hover:scale-105 transition-transform bg-white"
                                 alt={liveCreator.displayName}
+                                referrerPolicy="no-referrer"
                                 onClick={() => setExpandedImage(liveCreator.photoURL)}
                             />
                             {liveCreator.openToCollab && (
@@ -271,7 +292,7 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                     <div className="grid grid-cols-2 gap-3">
                         {(liveCreator.portfolio || []).map((url, index) => (
                             <div key={index} className="aspect-square rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => setExpandedImage(url)}>
-                                <img src={url} alt={`Portfolio item ${index + 1}`} className="w-full h-full object-cover" />
+                                <img src={url} alt={`Portfolio item ${index + 1}`} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
                             </div>
                         ))}
                     </div>
@@ -291,11 +312,13 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                         <img
                                             src={liveCreator.photoURL}
                                             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-0"
+                                            referrerPolicy="no-referrer"
                                             alt="Creator"
                                         />
                                         <img
                                             src={collab.imageUrl || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'}
                                             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm z-10"
+                                            referrerPolicy="no-referrer"
                                             alt="Partner"
                                         />
                                     </div>
@@ -344,6 +367,7 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                                 src={rating.raterPhoto || 'https://picsum.photos/seed/unknown/100/100'}
                                                 className="w-8 h-8 rounded-full object-cover border border-slate-100 group-hover:border-violet-300 transition-colors"
                                                 alt={rating.raterName}
+                                                referrerPolicy="no-referrer"
                                             />
                                             <div>
                                                 <p className="text-xs font-bold text-slate-900 group-hover:text-violet-600 transition-colors underline decoration-transparent group-hover:decoration-violet-600">{rating.raterName}</p>

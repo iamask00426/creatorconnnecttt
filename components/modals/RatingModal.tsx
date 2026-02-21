@@ -37,17 +37,17 @@ export const RatingModal: React.FC<RatingModalProps> = ({ currentUser, otherUser
                 comment,
             });
             setStatus('Rating Submitted!');
-            
+
             // Trigger optimistic update in parent
             if (onSuccess) onSuccess();
 
-            setTimeout(onClose, 1000);
+            setTimeout(onClose, 300);
         } catch (error) {
             console.error("Failed to submit rating (likely permission issue):", error);
             // Simulate success for demo/MVP if backend rejects it
             setStatus('Rating Submitted!');
             if (onSuccess) onSuccess();
-            setTimeout(onClose, 1000);
+            setTimeout(onClose, 300);
         }
     };
 
@@ -69,9 +69,9 @@ export const RatingModal: React.FC<RatingModalProps> = ({ currentUser, otherUser
                                     onClick={() => setRating(star)}
                                     className="focus:outline-none transition-transform hover:scale-110 active:scale-95"
                                 >
-                                    <StarIcon 
-                                        className="h-8 w-8 transition-colors" 
-                                        fill={(hoverRating || rating) >= star ? '#FBBF24' : '#D1D5DB'} 
+                                    <StarIcon
+                                        className="h-8 w-8 transition-colors"
+                                        fill={(hoverRating || rating) >= star ? '#FBBF24' : '#D1D5DB'}
                                     />
                                 </button>
                             ))}
@@ -79,10 +79,10 @@ export const RatingModal: React.FC<RatingModalProps> = ({ currentUser, otherUser
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Comment (Optional)</label>
-                        <textarea 
-                            value={comment} 
-                            onChange={(e) => setComment(e.target.value)} 
-                            rows={3} 
+                        <textarea
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            rows={3}
                             placeholder="How was your experience?"
                             className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />

@@ -92,6 +92,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                                 src={chat.partner.photoURL}
                                                 className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform"
                                                 alt={chat.partner.displayName}
+                                                referrerPolicy="no-referrer"
                                             />
                                             <span className="absolute -bottom-0.5 -right-0.5 block h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white ring-2 ring-green-100"></span>
                                         </div>
@@ -135,6 +136,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                         src={chat.partner.photoURL}
                                         className="w-12 h-12 rounded-2xl object-cover border border-slate-100 group-hover:scale-105 transition-transform"
                                         alt={chat.partner.displayName}
+                                        referrerPolicy="no-referrer"
                                     />
                                     <span className="absolute -bottom-0.5 -right-0.5 block h-3 w-3 rounded-full bg-slate-300 border-2 border-white"></span>
                                 </div>

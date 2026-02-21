@@ -77,7 +77,7 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
                 });
                 setIsLoading(false);
                 setIsLocked(false);
-            }, 1000);
+            }, 300);
         }
     };
 

@@ -46,6 +46,7 @@ export default {
                 'blob': 'blob 10s infinite',
                 'spin-slow': 'spin 8s linear infinite',
                 'shimmer': 'shimmer 2s linear infinite',
+                'loading-bar': 'loadingBar 1.5s ease-in-out infinite',
             },
             keyframes: {
                 float: {
@@ -65,6 +66,11 @@ export default {
                 shimmer: {
                     "0%": { backgroundPosition: "200% 0" },
                     "100%": { backgroundPosition: "-200% 0" }
+                },
+                loadingBar: {
+                    "0%": { transform: "translateX(-150%)" },
+                    "50%": { transform: "translateX(0%)" },
+                    "100%": { transform: "translateX(200%)" }
                 }
             }
         },

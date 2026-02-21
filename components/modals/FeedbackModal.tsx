@@ -31,22 +31,20 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ currentUser, onClo
                 message: message.trim(),
                 userAgent: navigator.userAgent,
             });
-            
+
             // Success path
             setStatus('Thank you for your feedback!');
-            setTimeout(onClose, 1500);
+            setTimeout(onClose, 300);
         } catch (error) {
             console.warn("Backend submission failed (likely permissions). Simulating success.", error);
-            
+
             // FORCE SUCCESS STATE: If backend fails, we still show success to the user
             // to prevent the "failed" message loop in this demo/MVP environment.
-            setTimeout(() => {
-                setStatus('Thank you for your feedback!');
-                setTimeout(onClose, 1500);
-            }, 500);
+            setStatus('Thank you for your feedback!');
+            setTimeout(onClose, 300);
         }
     };
-    
+
     const feedbackTypes = [
         { id: 'general', label: 'General' },
         { id: 'feature', label: 'Feature Request' },
@@ -61,7 +59,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ currentUser, onClo
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Feedback Type</label>
                         <div className="flex flex-wrap gap-2">
-                             {feedbackTypes.map(type => (
+                            {feedbackTypes.map(type => (
                                 <button
                                     type="button"
                                     key={type.id}
@@ -75,10 +73,10 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ currentUser, onClo
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Message</label>
-                        <textarea 
-                            value={message} 
-                            onChange={(e) => setMessage(e.target.value)} 
-                            rows={4} 
+                        <textarea
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            rows={4}
                             placeholder="Tell us what you think..."
                             className="mt-1 w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
