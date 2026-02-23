@@ -19,7 +19,7 @@ interface CreatorProfilePageProps {
 const Stat: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
     <div className="flex flex-col items-center justify-center p-2">
         <p className="font-extrabold text-xl text-slate-900">{value}</p>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</p>
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center">{label}</p>
     </div>
 );
 
@@ -205,7 +205,7 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                 onClick={() => setExpandedImage(liveCreator.photoURL)}
                             />
                             {liveCreator.openToCollab && (
-                                <div className="absolute -bottom-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-1 rounded-full border-2 border-white shadow-sm">
+                                <div className="absolute -bottom-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white shadow-sm">
                                     OPEN
                                 </div>
                             )}
@@ -327,13 +327,13 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                         <p className="text-xs text-violet-600 font-medium mb-1">with {collab.partnerName}</p>
                                         <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{collab.description}</p>
                                         <div className="flex items-center justify-between mt-2">
-                                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{collab.date}</p>
+                                            <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">{collab.date}</p>
                                             {collab.link && (
                                                 <a
                                                     href={collab.link}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="px-3 py-1 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-1 shadow-md shadow-slate-900/10"
+                                                    className="px-3 py-1 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-1 shadow-md shadow-slate-900/10"
                                                 >
                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                     Watch Video
@@ -371,7 +371,7 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                                             />
                                             <div>
                                                 <p className="text-xs font-bold text-slate-900 group-hover:text-violet-600 transition-colors underline decoration-transparent group-hover:decoration-violet-600">{rating.raterName}</p>
-                                                <p className="text-[9px] text-slate-400">{rating.timestamp ? rating.timestamp.toLocaleDateString() : 'Recent'}</p>
+                                                <p className="text-xs text-slate-400">{rating.timestamp ? rating.timestamp.toLocaleDateString() : 'Recent'}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center bg-amber-50 px-2 py-1 rounded-lg">
@@ -403,7 +403,7 @@ export const CreatorProfilePage: React.FC<CreatorProfilePageProps> = ({ currentU
                             <p className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-1">
                                 Join Creator Connect <BoltIcon className="w-4 h-4 text-orange-500" />
                             </p>
-                            <p className="text-[10px] text-slate-500 font-medium mt-0.5">Log in to chat with {liveCreator.displayName}</p>
+                            <p className="text-xs text-slate-500 font-medium mt-0.5">Log in to chat with {liveCreator.displayName}</p>
                         </div>
                         <button
                             className="auth-exempt bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap hover:scale-105 transition-transform shadow-lg shadow-black/10 active:scale-95"

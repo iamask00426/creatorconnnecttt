@@ -22,15 +22,21 @@ const CreatorListCard: React.FC<{ creator: Creator; onClick: () => void; style: 
     >
         <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-violet-500 to-fuchsia-500 rounded-2xl blur-md opacity-30 group-hover:opacity-50 transition-opacity"></div>
-            <img src={creator.photoURL || 'https://picsum.photos/seed/placeholder/100/100'} referrerPolicy="no-referrer" className="relative w-16 h-16 rounded-2xl object-cover bg-slate-100 ring-2 ring-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.08)]" alt={creator.displayName || 'Creator'} />
+            <img
+                src={creator.photoURL || 'https://ui-avatars.com/api/?name=Creator&background=random'}
+                referrerPolicy="no-referrer"
+                className="relative w-16 h-16 rounded-2xl object-cover bg-slate-100 ring-2 ring-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+                alt={creator.displayName || 'Creator'}
+                onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(creator.displayName || 'Creator') + '&background=random'; }}
+            />
         </div>
         <div className="flex-grow">
-            <h3 className="font-bold text-slate-900 text-base">{creator.displayName || 'Unknown Creator'}</h3>
+            <h3 className="font-bold text-slate-900 text-base">{creator.displayName || 'Creator'}</h3>
             <p className="text-xs text-violet-600 font-bold uppercase tracking-wider mt-0.5">{creator.niche || 'General'}</p>
-            <p className="text-xs text-slate-400 mt-1">{creator.location || 'Unknown Location'}</p>
+            <p className="text-xs text-slate-400 mt-1">{creator.location || 'Location hidden'}</p>
         </div>
         {creator.openToCollab && (
-            <div className="self-center text-[8px] font-black text-white bg-green-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm shadow-green-200">
+            <div className="self-center text-xs font-black text-white bg-green-500 px-2 py-1 rounded-full uppercase tracking-wider shadow-sm shadow-green-200">
                 OPEN
             </div>
         )}
@@ -143,6 +149,29 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({ onViewProfile, for
                     >
                         <FilterIcon className="h-5 w-5" />
                     </button>
+                </div>
+
+                {/* Quick Filters Carousel */}
+                <div className="flex items-center space-x-2 overflow-x-auto hide-scrollbar pt-1 pb-1 -mx-2 px-2">
+                    {['Fashion', 'Gaming', 'Fitness', 'Tech', 'Lifestyle', 'Photography', 'Business'].map(niche => (
+                        <button
+                            key={niche}
+                            onClick={() => {
+                                setFilters(prev => ({
+                                    ...prev,
+                                    niches: prev.niches.includes(niche)
+                                        ? prev.niches.filter(n => n !== niche)
+                                        : [...prev.niches, niche]
+                                }))
+                            }}
+                            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${filters.niches.includes(niche)
+                                    ? 'bg-violet-600 text-white shadow-soft-sm scale-105'
+                                    : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-100'
+                                }`}
+                        >
+                            {niche}
+                        </button>
+                    ))}
                 </div>
             </header>
 

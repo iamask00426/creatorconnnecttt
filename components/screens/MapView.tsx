@@ -120,8 +120,8 @@ export const MapView: React.FC<MapViewProps> = ({ creators, onViewProfile }) => 
                             <img src="${c.photoURL}" class="w-12 h-12 rounded-lg object-cover" />
                             <div class="flex-1 overflow-hidden">
                                 <h4 class="m-0 font-bold text-sm text-slate-900 truncate">${c.displayName}</h4>
-                                <p class="m-0 text-[10px] text-violet-600 font-bold uppercase">${c.niche}</p>
-                                <button id="v-${c.uid}" class="mt-2 w-full py-1.5 bg-slate-900 text-white text-[9px] font-black rounded-md uppercase tracking-widest">View</button>
+                                <p class="m-0 text-xs text-violet-600 font-bold uppercase">${c.niche}</p>
+                                <button id="v-${c.uid}" class="mt-2 w-full py-1.5 bg-slate-900 text-white text-xs font-black rounded-md uppercase tracking-widest">View</button>
                             </div>
                         </div>`;
                     marker.bindPopup(content, { closeButton: false });
@@ -149,7 +149,7 @@ export const MapView: React.FC<MapViewProps> = ({ creators, onViewProfile }) => 
                                         <img src="${c.photoURL}" class="w-8 h-8 rounded-md object-cover" />
                                         <div class="flex-1 overflow-hidden">
                                             <p class="m-0 font-bold text-xs text-slate-900 truncate">${c.displayName}</p>
-                                            <p class="m-0 text-[9px] text-violet-600 font-bold">${c.niche}</p>
+                                            <p class="m-0 text-xs text-violet-600 font-bold">${c.niche}</p>
                                         </div>
                                     </div>
                                 `).join('')}

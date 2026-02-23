@@ -36,7 +36,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({ onCo
                     </button>
                     <button
                         onClick={onDismiss}
-                        className="w-full py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 hover:text-slate-700 hover:bg-slate-100/50 active:bg-slate-100 transition-all"
+                        className="w-full py-3 rounded-2xl font-black text-xs uppercase tracking-[0.2em] text-slate-400 hover:text-slate-700 hover:bg-slate-100/50 active:bg-slate-100 transition-all"
                     >
                         Maybe Later
                     </button>

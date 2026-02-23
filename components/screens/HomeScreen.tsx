@@ -5,6 +5,7 @@ import { fetchAllCreators } from '../../services/firebase';
 import { SearchIcon, SparklesIcon, PlusIcon, LocationPinIcon, VideoCameraIcon, MyLocationIcon } from '../icons';
 import { MagicMatchModal } from '../modals/MagicMatchModal';
 import { ContentIdeaModal } from '../modals/ContentIdeaModal';
+import { CreatorCardSkeleton } from '../loaders/CreatorCardSkeleton';
 
 interface HomeScreenProps {
     onViewProfile: (creator: Creator) => void;
@@ -30,47 +31,93 @@ const deg2rad = (deg: number) => {
     return deg * (Math.PI / 180);
 };
 
-const CreatorCard: React.FC<{ creator: Creator; onClick: () => void; index: number; distance?: number }> = ({ creator, onClick, index, distance }) => (
-    <div
-        onClick={onClick}
-        className="cursor-pointer group relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(139,92,246,0.15)] ring-1 ring-black/5 hover:ring-violet-500/30 transition-all duration-500 animate-slide-up tap-bounce bg-white"
-        style={{ animationDelay: `${index * 50}ms` }}
-    >
-        <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/20 to-fuchsia-500/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none mix-blend-overlay"></div>
-        <img
-            src={creator.photoURL || 'https://picsum.photos/seed/placeholder/400/400'}
-            alt={creator.displayName || 'Creator'}
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
+const CreatorCard: React.FC<{ creator: Creator; onClick: () => void; index: number; distance?: number }> = ({ creator, onClick, index, distance }) => {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent opacity-90"></div>
+    const images = useMemo(() => {
+        const imgs = [];
+        if (creator.photoURL) imgs.push(creator.photoURL);
+        if (creator.portfolio && creator.portfolio.length > 0) {
+            imgs.push(...creator.portfolio);
+        }
+        if (imgs.length === 0) imgs.push('https://ui-avatars.com/api/?name=' + encodeURIComponent(creator.displayName || 'Creator') + '&background=random');
+        return imgs;
+    }, [creator.photoURL, creator.portfolio, creator.displayName]);
 
-        <div className="absolute inset-x-0 bottom-0 p-4">
-            <div className="flex justify-between items-end mb-2">
-                <div className="inline-flex px-2 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
-                    <p className="text-[8px] font-bold text-white uppercase tracking-widest leading-none">{creator.niche || 'General'}</p>
+    const handleNext = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setCurrentImageIndex(prev => (prev + 1) % images.length);
+    };
+
+    const handlePrev = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setCurrentImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
+    };
+
+    return (
+        <div
+            onClick={onClick}
+            className="cursor-pointer group relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(139,92,246,0.15)] ring-1 ring-black/5 hover:ring-violet-500/30 transition-all duration-500 animate-slide-up tap-bounce bg-white"
+            style={{ animationDelay: `${index * 50}ms` }}
+        >
+            <div className="absolute inset-0 bg-gradient-to-tr from-violet-500/20 to-fuchsia-500/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none mix-blend-overlay"></div>
+            <img
+                key={images[currentImageIndex]} // Force re-render on image change for animation
+                src={images[currentImageIndex]}
+                alt={creator.displayName || 'Creator'}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 animate-fade-in"
+                onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(creator.displayName || 'Creator') + '&background=random'; }}
+            />
+
+            {images.length > 1 && (
+                <>
+                    {/* Carousel Controls */}
+                    <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none">
+                        <button onClick={handlePrev} className="pointer-events-auto p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50 backdrop-blur-md transition-colors active:scale-90">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <button onClick={handleNext} className="pointer-events-auto p-1.5 rounded-full bg-black/30 text-white hover:bg-black/50 backdrop-blur-md transition-colors active:scale-90">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    </div>
+                    {/* Dots */}
+                    <div className="absolute top-3 inset-x-0 flex justify-center space-x-1.5 z-20 px-4">
+                        {images.map((_, i) => (
+                            <div key={i} className={`h-1 shadow-sm rounded-full transition-all duration-300 ${i === currentImageIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}></div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none"></div>
+
+            <div className="absolute inset-x-0 bottom-0 p-4 pointer-events-none">
+                <div className="flex justify-between items-end mb-2">
+                    <div className="inline-flex px-2 py-1 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
+                        <p className="text-xs font-bold text-white uppercase tracking-widest leading-none">{creator.niche || 'General'}</p>
+                    </div>
+                </div>
+
+                <h3 className="text-lg font-black text-white mb-0.5 leading-tight truncate tracking-tight">{creator.displayName || 'Creator'}</h3>
+
+                <div className="flex items-center text-xs text-white/90 font-medium tracking-wide">
+                    <span className="truncate max-w-[70%]">{creator.location || 'Location hidden'}</span>
+                    {distance !== undefined && distance < 1000 && (
+                        <span className="ml-auto opacity-90 font-bold bg-black/20 px-1.5 py-0.5 rounded text-xs">
+                            {distance < 1 ? '<1' : Math.round(distance)} km
+                        </span>
+                    )}
                 </div>
             </div>
 
-            <h3 className="text-lg font-black text-white mb-0.5 leading-tight truncate tracking-tight">{creator.displayName || 'Unknown'}</h3>
-
-            <div className="flex items-center text-[10px] text-white/80 font-medium tracking-wide">
-                <span className="truncate max-w-[70%]">{creator.location || 'Unknown Location'}</span>
-                {distance !== undefined && distance < 1000 && (
-                    <span className="ml-auto opacity-90 font-bold bg-black/20 px-1.5 py-0.5 rounded text-[9px]">
-                        {distance < 1 ? '<1' : Math.round(distance)} km
-                    </span>
-                )}
+            <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0 z-10 pointer-events-none">
+                <PlusIcon className="w-4 h-4 text-white" />
             </div>
         </div>
-
-        <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-            <PlusIcon className="w-4 h-4 text-white" />
-        </div>
-    </div>
-);
+    );
+};
 
 // Fallback images for known cities to make the UI look good without a real image API
 const CITY_IMAGES: Record<string, string> = {
@@ -333,7 +380,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
             <header className="sticky top-0 z-40 bg-slate-50/90 backdrop-blur-xl px-6 py-6 pb-2">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Discover</p>
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Discover</p>
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight">For You</h1>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg shadow-slate-200 active:scale-90 transition-transform cursor-pointer">
@@ -385,12 +432,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
                     <h2 className="text-sm font-black text-slate-900 tracking-tight uppercase tracking-wider">
                         {activeLocation ? `In ${activeLocation}` : (ignoreRadius ? 'All Creators' : 'Nearby')}
                     </h2>
-                    <span className="text-[10px] font-black text-violet-600 bg-violet-50 px-3 py-1 rounded-full">{processedCreators.length}</span>
+                    <span className="text-xs font-black text-violet-600 bg-violet-50 px-3 py-1 rounded-full">{processedCreators.length}</span>
                 </div>
 
                 <div className="grid grid-cols-2 gap-5">
                     {isLoading ? (
-                        Array.from({ length: 4 }).map((_, i) => <div key={i} className="aspect-[4/5] rounded-[2rem] bg-white animate-pulse"></div>)
+                        Array.from({ length: 4 }).map((_, i) => <CreatorCardSkeleton key={i} />)
                     ) : processedCreators.length > 0 ? (
                         processedCreators.map((c, index) => (
                             <CreatorCard
@@ -407,7 +454,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
                                 <div className="flex flex-col items-center p-4">
                                     <LocationPinIcon className="w-10 h-10 text-slate-300 mb-3" />
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Location required</p>
-                                    <p className="text-[10px] text-slate-400 mb-4 max-w-[200px]">
+                                    <p className="text-xs text-slate-400 mb-4 max-w-[200px]">
                                         {(currentUser.lat === 0 || currentUser.lng === 0)
                                             ? "We need your location to show nearby creators."
                                             : "No creators found within 60km."}
@@ -417,7 +464,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
                                         {/* Button 1: Open Profile Edit */}
                                         <button
                                             onClick={() => onUpdateUserData({ profileStatus: 'onboarding' })}
-                                            className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-slate-200 transition-colors"
+                                            className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-200 transition-colors"
                                         >
                                             Edit Profile
                                         </button>
@@ -426,20 +473,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
                                         <button
                                             id="refresh-loc-btn"
                                             onClick={handleRefreshLocation}
-                                            className="px-4 py-2 bg-violet-600 text-white rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg shadow-violet-200 active:scale-95 transition-all flex items-center gap-2"
+                                            className="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-violet-200 active:scale-95 transition-all flex items-center gap-2"
                                         >
                                             <MyLocationIcon className="w-3 h-3" />
                                             <span id="loc-btn-text">Refresh GPS</span>
                                         </button>
                                     </div>
-                                    <p className="text-[9px] text-slate-300 mt-4">
+                                    <p className="text-xs text-slate-300 mt-4">
                                         Current: {currentUser.lat?.toFixed(2) || 0}, {currentUser.lng?.toFixed(2) || 0}
                                     </p>
 
                                     {/* Fallback Option */}
                                     <button
                                         onClick={() => setIgnoreRadius(true)}
-                                        className="mt-4 text-[10px] font-bold text-violet-500 hover:text-violet-700 underline transition-colors"
+                                        className="mt-4 text-xs font-bold text-violet-500 hover:text-violet-700 underline transition-colors"
                                     >
                                         Show everyone instead
                                     </button>
@@ -456,18 +503,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
             <div className="fixed bottom-28 right-6 z-50 flex flex-col gap-4">
                 <button
                     onClick={handleOpenContentIdeas}
-                    className="w-14 h-14 rounded-full bg-white text-violet-600 shadow-soft-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all group"
+                    className="w-14 h-14 rounded-full bg-white text-violet-600 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgba(139,92,246,0.3)] flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-90 transition-all duration-300 ease-out group"
                 >
-                    <VideoCameraIcon className="w-6 h-6" />
+                    <VideoCameraIcon className="w-6 h-6 group-hover:animate-pulse" />
                 </button>
                 <button
                     data-tour-id="magic-match"
                     onClick={handleOpenMagicMatch}
                     disabled={isLoading || !creators.length}
-                    className="w-14 h-14 rounded-full bg-slate-900 text-white shadow-soft-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all group overflow-hidden disabled:opacity-50"
+                    className="w-14 h-14 rounded-full bg-slate-900 text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_8px_30px_rgba(139,92,246,0.3)] flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-90 transition-all duration-300 ease-out group overflow-hidden disabled:opacity-50"
                 >
-                    <div className="absolute inset-0 bg-gradient-to-tr from-violet-600 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <SparklesIcon className="w-6 h-6 relative z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-violet-600 to-fuchsia-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <SparklesIcon className="w-6 h-6 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
                 </button>
             </div>
 

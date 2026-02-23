@@ -89,28 +89,28 @@ export const ImageModal: React.FC<ImageModalProps> = ({ imageUrl, onClose, creat
                                 <div className="w-16 h-16 rounded-full bg-white text-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xl">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                                 </div>
-                                <span className="text-[11px] font-bold text-white/90 tracking-wide mt-1">Following</span>
+                                <span className="text-xs font-bold text-white/90 tracking-wide mt-1">Following</span>
                             </div>
 
                             <div className="flex flex-col items-center gap-2 group cursor-pointer" onClick={handleShare}>
                                 <div className="w-16 h-16 rounded-full bg-white text-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xl">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                                 </div>
-                                <span className="text-[11px] font-bold text-white/90 tracking-wide mt-1">Share</span>
+                                <span className="text-xs font-bold text-white/90 tracking-wide mt-1">Share</span>
                             </div>
 
                             <div className="flex flex-col items-center gap-2 group cursor-pointer" onClick={handleCopyLink}>
                                 <div className="w-16 h-16 rounded-full bg-white text-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xl">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                                 </div>
-                                <span className="text-[11px] font-bold text-white/90 tracking-wide mt-1">Copy link</span>
+                                <span className="text-xs font-bold text-white/90 tracking-wide mt-1">Copy link</span>
                             </div>
 
                             <div className="flex flex-col items-center gap-2 group cursor-pointer" onClick={() => setShowQR(true)}>
                                 <div className="w-16 h-16 rounded-full bg-white text-slate-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-xl">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                                 </div>
-                                <span className="text-[11px] font-bold text-white/90 tracking-wide mt-1">QR code</span>
+                                <span className="text-xs font-bold text-white/90 tracking-wide mt-1">QR code</span>
                             </div>
                         </div>
                     )}

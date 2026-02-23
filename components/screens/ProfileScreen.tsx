@@ -24,7 +24,7 @@ interface ProfileScreenProps {
 const Stat: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
     <div className="flex flex-col items-center justify-center py-1.5">
         <p className="font-black text-lg text-slate-900 tracking-tight">{value}</p>
-        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+        <p className="text-xs font-black text-slate-400 uppercase tracking-widest text-center">{label}</p>
     </div>
 );
 
@@ -274,9 +274,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                 )}
 
                 <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/50 px-5 py-4 flex justify-between items-center">
-                    <button onClick={() => { setCurrentView('profile'); onEditFlowEnd?.(); }} className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1">Cancel</button>
+                    <button onClick={() => { setCurrentView('profile'); onEditFlowEnd?.(); }} className="text-xs font-black text-slate-400 uppercase tracking-widest px-2 py-1">Cancel</button>
                     <h1 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Edit Profile</h1>
-                    <button onClick={handleSave} className="text-[10px] font-black text-violet-600 uppercase tracking-widest px-2 py-1 bg-violet-50 rounded-lg">Save</button>
+                    <button onClick={handleSave} className="text-xs font-black text-violet-600 uppercase tracking-widest px-2 py-1 bg-violet-50 rounded-lg">Save</button>
                 </header>
 
                 <div className="flex-grow overflow-y-auto hide-scrollbar p-5 space-y-6 pb-32">
@@ -293,7 +293,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                 <div className="p-2 bg-white/20 backdrop-blur-md rounded-full border border-white/30">
                                     <CameraIcon className="w-5 h-5" />
                                 </div>
-                                <span className="text-[9px] font-black uppercase tracking-widest">Change Cover</span>
+                                <span className="text-xs font-black uppercase tracking-widest">Change Cover</span>
                                 <input type="file" className="hidden" onChange={(e) => handleFileSelect(e, 'cover')} accept="image/*" />
                             </label>
                         </div>
@@ -311,13 +311,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
 
                     <div className="space-y-4">
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Full Name</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Full Name</label>
                             <input type="text" value={editedData.displayName} onChange={e => setEditedData({ ...editedData, displayName: e.target.value })} className="w-full text-md font-bold text-slate-900 outline-none bg-transparent" placeholder="Your name" />
                         </div>
 
                         {/* Unique Link Section */}
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm relative">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Unique Link Loop</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Unique Link Loop</label>
                             <div className="flex items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-violet-500 transition-colors">
                                 <span className="text-xs font-bold text-slate-400 whitespace-nowrap">creatorconnect.io/</span>
                                 <input
@@ -332,15 +332,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                 />
                                 {usernameStatus === 'checking' && <div className="animate-spin w-3 h-3 border-2 border-slate-200 border-t-violet-600 rounded-full"></div>}
                                 {usernameStatus === 'available' && <div className="text-green-500"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg></div>}
-                                {usernameStatus === 'taken' && <div className="text-red-500 text-[9px] font-black uppercase whitespace-nowrap">{usernameError || 'Taken'}</div>}
+                                {usernameStatus === 'taken' && <div className="text-red-500 text-xs font-black uppercase whitespace-nowrap">{usernameError || 'Taken'}</div>}
                             </div>
-                            <p className="text-[8px] text-slate-400 mt-1.5 font-medium ml-1">
+                            <p className="text-xs text-slate-400 mt-1.5 font-medium ml-1">
                                 Share this link to direct brands straight to your profile.
                             </p>
                         </div>
 
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Gender</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Gender</label>
                             <div className="relative">
                                 <select
                                     value={editedData.gender || ''}
@@ -364,7 +364,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
                             <PhoneIcon className="w-5 h-5 text-slate-400" />
                             <div className="flex-grow">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Phone Number</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1">Phone Number</label>
                                 <div className="flex justify-between items-center">
                                     <input
                                         type="tel"
@@ -374,14 +374,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                         placeholder="+1 234 567 8900"
                                     />
                                     {editedData.phoneNumberVerified ? (
-                                        <div className="flex items-center gap-1 text-[9px] font-black text-green-600 bg-green-50 px-2 py-1 rounded-md">
+                                        <div className="flex items-center gap-1 text-xs font-black text-green-600 bg-green-50 px-2 py-1 rounded-md">
                                             <span>Verified</span>
                                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                                         </div>
                                     ) : (
                                         <button
                                             onClick={() => setIsPhoneVerificationModalOpen(true)}
-                                            className="text-[9px] font-black text-white bg-slate-900 px-3 py-1.5 rounded-lg shadow-md hover:bg-slate-800 transition-colors uppercase tracking-wide"
+                                            className="text-xs font-black text-white bg-slate-900 px-3 py-1.5 rounded-lg shadow-md hover:bg-slate-800 transition-colors uppercase tracking-wide"
                                         >
                                             Verify
                                         </button>
@@ -391,7 +391,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         </div>
 
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Creative Niche</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Creative Niche</label>
                             <div className="relative">
                                 <select
                                     value={editedData.niche}
@@ -415,7 +415,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
 
                         {/* Follower Count Edit Section */}
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Total Followers</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Total Followers</label>
                             <input
                                 type="number"
                                 value={editedData.followerCount || ''}
@@ -426,14 +426,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         </div>
 
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">Bio</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Bio</label>
                             <textarea rows={3} value={editedData.bio} onChange={e => setEditedData({ ...editedData, bio: e.target.value })} className="w-full text-xs font-medium text-slate-600 outline-none resize-none bg-transparent leading-relaxed" placeholder="Tell the world about yourself..." />
                         </div>
 
                         <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
                             <div className="flex justify-between items-center mb-1.5">
-                                <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Location</label>
-                                <button onClick={detectLocation} className="text-[8px] font-black text-violet-600 uppercase tracking-widest flex items-center gap-1 hover:bg-violet-50 px-2 py-1 rounded-md transition-colors">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest">Location</label>
+                                <button onClick={detectLocation} className="text-xs font-black text-violet-600 uppercase tracking-widest flex items-center gap-1 hover:bg-violet-50 px-2 py-1 rounded-md transition-colors">
                                     <MyLocationIcon className="w-2.5 h-2.5" /> Detect
                                 </button>
                             </div>
@@ -442,7 +442,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] px-1">Social Handles</h3>
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] px-1">Social Handles</h3>
                         <div className="grid grid-cols-1 gap-3">
                             {[
                                 { id: 'instagram', icon: InstagramOriginalIcon, label: 'Instagram', color: '' },
@@ -458,7 +458,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                             <div className="flex justify-between items-center">
                                                 <label className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">{social.label}</label>
                                                 {social.id === 'instagram' && editedData.instagramVerified && (
-                                                    <span className="text-[8px] font-bold text-blue-500 flex items-center gap-1">Verified</span>
+                                                    <span className="text-xs font-bold text-blue-500 flex items-center gap-1">Verified</span>
                                                 )}
                                             </div>
                                             <input
@@ -475,7 +475,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                         <div className="mt-3 border-t border-slate-50 pt-2 flex justify-end">
                                             <button
                                                 onClick={() => setIsVerificationModalOpen(true)}
-                                                className="px-4 py-2 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                                className="px-4 py-2 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                                             >
                                                 <BoltIcon className="w-3 h-3 text-amber-400" />
                                                 Verify Account
@@ -489,7 +489,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
 
                     <div className="space-y-4">
                         <div className="flex justify-between items-center px-1">
-                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em]">Success Story Gallery</h3>
+                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em]">Success Story Gallery</h3>
                             <button onClick={handleAddCollab} className="p-2 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-600/20 active:scale-90 transition-all">
                                 <PlusIcon className="w-4 h-4" />
                             </button>
@@ -528,7 +528,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                                     newCollabs[idx].partnerName = e.target.value;
                                                     setEditedData({ ...editedData, pastCollaborations: newCollabs });
                                                 }}
-                                                className="w-full text-[11px] font-bold text-violet-600 outline-none border-b border-slate-50 pb-1.5 bg-transparent focus:border-violet-200 transition-colors"
+                                                className="w-full text-xs font-bold text-violet-600 outline-none border-b border-slate-50 pb-1.5 bg-transparent focus:border-violet-200 transition-colors"
                                                 placeholder="Brand or Creator Name"
                                             />
                                         </div>
@@ -542,7 +542,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                                     newCollabs[idx].description = e.target.value;
                                                     setEditedData({ ...editedData, pastCollaborations: newCollabs });
                                                 }}
-                                                className="w-full text-[11px] text-slate-600 outline-none resize-none bg-slate-50 p-3 rounded-2xl leading-relaxed"
+                                                className="w-full text-xs text-slate-600 outline-none resize-none bg-slate-50 p-3 rounded-2xl leading-relaxed"
                                                 placeholder="Describe the collaboration outcome..."
                                             />
                                         </div>
@@ -623,7 +623,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                             />
                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
                         </div>
-                        <button onClick={() => setCurrentView('edit')} className="px-6 py-2.5 rounded-2xl bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:scale-105 active:scale-95 transition-all">Edit Profile</button>
+                        <button onClick={() => setCurrentView('edit')} className="px-6 py-2.5 rounded-2xl bg-slate-900 text-white text-xs font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 hover:scale-105 active:scale-95 transition-all">Edit Profile</button>
                     </div>
                     <h1 className="text-2xl font-black text-slate-900 mb-0.5 tracking-tight flex items-center gap-2">
                         {userData.displayName}
@@ -639,7 +639,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                             className="w-full mb-6 py-3 bg-gradient-to-r from-pink-500 to-violet-500 text-white rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-pink-500/20 hover:scale-[1.02] active:scale-95 transition-all"
                         >
                             <BoltIcon className="w-4 h-4 text-yellow-300" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Verify Identity</span>
+                            <span className="text-xs font-black uppercase tracking-[0.2em]">Verify Identity</span>
                         </button>
                     )}
 
@@ -657,7 +657,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     <div>
                         <div className="flex justify-between items-center mb-5 px-1">
                             <h2 className="text-lg font-black text-slate-900 tracking-tight">Portfolio</h2>
-                            <button className="text-[9px] font-black text-violet-600 uppercase tracking-widest px-3 py-1 bg-violet-50 rounded-lg">View All</button>
+                            <button className="text-xs font-black text-violet-600 uppercase tracking-widest px-3 py-1 bg-violet-50 rounded-lg">View All</button>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             {userData.portfolio.slice(0, 4).map((img, i) => (
@@ -692,7 +692,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                         </div>
                                         <div className="flex flex-col justify-center overflow-hidden">
                                             <h3 className="font-bold text-slate-900 text-sm truncate tracking-tight">{collab.title}</h3>
-                                            <p className="text-[9px] font-black text-violet-600 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
+                                            <p className="text-xs font-black text-violet-600 uppercase tracking-widest mt-1.5 flex items-center gap-1.5">
                                                 <span className="w-1 h-1 rounded-full bg-violet-600"></span>
                                                 w/ {collab.partnerName}
                                             </p>
@@ -707,7 +707,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     <div className="pb-20">
                         <div className="flex items-center justify-between mb-5 px-1">
                             <h2 className="text-lg font-black text-slate-900 tracking-tight">Reviews</h2>
-                            <span className="text-[9px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">{myRatings.length}</span>
+                            <span className="text-xs font-black text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">{myRatings.length}</span>
                         </div>
 
                         {myRatings.length > 0 ? (
@@ -727,7 +727,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                                 />
                                                 <div>
                                                     <p className="text-xs font-bold text-slate-900 group-hover:text-violet-600 transition-colors underline decoration-transparent group-hover:decoration-violet-600">{rating.raterName}</p>
-                                                    <p className="text-[9px] text-slate-400">{rating.timestamp ? rating.timestamp.toLocaleDateString() : 'Recent'}</p>
+                                                    <p className="text-xs text-slate-400">{rating.timestamp ? rating.timestamp.toLocaleDateString() : 'Recent'}</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center bg-amber-50 px-2 py-1 rounded-lg">

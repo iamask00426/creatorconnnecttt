@@ -1602,7 +1602,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                             }`}
                     >
                         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>
-                        <span className="text-[10px] font-bold uppercase tracking-wider">{tab}</span>
+                        <span className="text-xs font-bold uppercase tracking-wider">{tab}</span>
                     </button>
                 ))}
             </nav>

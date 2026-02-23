@@ -271,7 +271,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ curren
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                     </svg>
                                                 </div>
-                                                <span className="text-[9px] font-black text-blue-600 uppercase tracking-wide">Action Required</span>
+                                                <span className="text-xs font-black text-blue-600 uppercase tracking-wide">Action Required</span>
                                             </div>
                                         </div>
 
@@ -282,7 +282,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ curren
                                                 <div className="mt-2 pl-3 border-l-2 border-violet-100 bg-slate-50 rounded-r-lg p-2">
                                                     <p className="text-xs text-slate-600 italic">"{req.description}"</p>
                                                 </div>
-                                                <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wide">Dates: {req.dates}</p>
+                                                <p className="text-xs text-slate-400 mt-2 font-bold uppercase tracking-wide">Dates: {req.dates}</p>
                                             </div>
                                         </div>
                                         <div className="flex justify-end space-x-2 mt-4 border-t border-slate-50 pt-3">
@@ -323,21 +323,21 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ curren
                                                     <div className="flex-grow">
                                                         <h4 className="text-sm font-bold text-slate-900">{note.title}</h4>
                                                         <p className="text-xs text-slate-600 mt-1 leading-relaxed">{note.message}</p>
-                                                        <p className="text-[10px] text-slate-400 mt-2">{note.timestamp.toLocaleDateString()} • {note.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                        <p className="text-xs text-slate-400 mt-2">{note.timestamp.toLocaleDateString()} • {note.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
 
                                                         {canRateBack && (
                                                             <div className="mt-3 bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between animate-fade-in-up">
                                                                 <span className="text-xs font-bold text-slate-700">Would you like to give feedback too?</span>
                                                                 <button
                                                                     onClick={() => handleRateBack(note)}
-                                                                    className="px-3 py-1.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-md hover:scale-105 transition-transform"
+                                                                    className="px-3 py-1.5 bg-slate-900 text-white text-xs font-black uppercase tracking-widest rounded-lg shadow-md hover:scale-105 transition-transform"
                                                                 >
                                                                     Rate Back
                                                                 </button>
                                                             </div>
                                                         )}
                                                         {isRating && haveIRatedBack && (
-                                                            <div className="mt-2 text-[10px] font-bold text-green-600 flex items-center gap-1">
+                                                            <div className="mt-2 text-xs font-bold text-green-600 flex items-center gap-1">
                                                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                                                                 You rated them back
                                                             </div>
@@ -376,17 +376,17 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ curren
                                                 <div className="flex-grow">
                                                     <p className="text-sm text-slate-700 font-medium">Collaboration on <span className="font-black text-slate-900">"{collab.projectName}"</span> with <span className="font-bold">{otherUser.displayName}</span>.</p>
                                                     <div className="flex items-center mt-2 space-x-2">
-                                                        <span className={`text-[9px] px-2 py-0.5 rounded-md font-black uppercase tracking-wider ${isCompleted ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
+                                                        <span className={`text-xs px-2 py-0.5 rounded-md font-black uppercase tracking-wider ${isCompleted ? 'bg-green-100 text-green-700' : 'bg-blue-50 text-blue-700'}`}>
                                                             {isCompleted ? 'COMPLETED' : 'ACTIVE'}
                                                         </span>
 
                                                         {isCompleted && !hasRated && (
-                                                            <span className="text-[10px] font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
+                                                            <span className="text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
                                                                 Pending Rating
                                                             </span>
                                                         )}
                                                         {collab.finalLink && (
-                                                            <a href={collab.finalLink} target="_blank" rel="noopener noreferrer" className="text-[9px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md border border-violet-100 flex items-center gap-1 hover:bg-violet-100">
+                                                            <a href={collab.finalLink} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-md border border-violet-100 flex items-center gap-1 hover:bg-violet-100">
                                                                 Watch Result
                                                             </a>
                                                         )}
@@ -406,7 +406,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ curren
                                                     hasRated ? (
                                                         <div className="flex items-center space-x-1 px-4 py-2 bg-slate-50 rounded-xl border border-slate-100 opacity-75">
                                                             <StarIcon className="w-3 h-3 text-amber-400" fill="#FBBF24" />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">You Rated</span>
+                                                            <span className="text-xs font-black uppercase tracking-widest text-slate-500">You Rated</span>
                                                         </div>
                                                     ) : (
                                                         <button

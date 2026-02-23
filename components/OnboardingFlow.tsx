@@ -179,7 +179,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
                                 )}
                                 <label className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors cursor-pointer flex items-center justify-center">
                                     <input type="file" className="hidden" onChange={handleCoverSelect} accept="image/*" />
-                                    <span className="text-[9px] font-black text-white uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-2 py-1 rounded-lg">Edit Cover</span>
+                                    <span className="text-xs font-black text-white uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-2 py-1 rounded-lg">Edit Cover</span>
                                 </label>
                             </div>
 
@@ -208,7 +208,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
                         {/* Form Fields */}
                         <div className="space-y-4 pt-6">
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Display Name</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Display Name</label>
                                 <input
                                     type="text"
                                     value={displayName}
@@ -219,7 +219,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
                             </div>
 
                             <div className="bg-violet-50/50 p-4 rounded-2xl border border-violet-100">
-                                <label className="text-[10px] font-black text-violet-600 uppercase tracking-widest mb-2 block">Mobile Number <span className="text-violet-400 font-normal normal-case ml-1">(For verification)</span></label>
+                                <label className="text-xs font-black text-violet-600 uppercase tracking-widest mb-2 block">Mobile Number <span className="text-violet-400 font-normal normal-case ml-1">(For verification)</span></label>
                                 <div className="flex gap-2 items-center relative z-20">
                                     <div className="relative">
                                         <button
@@ -280,7 +280,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Niche</label>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Niche</label>
                                     <select
                                         value={niche}
                                         onChange={(e) => setNiche(e.target.value)}
@@ -295,7 +295,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Gender</label>
+                                    <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Gender</label>
                                     <select
                                         value={gender}
                                         onChange={(e) => setGender(e.target.value)}
@@ -311,7 +311,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
                             </div>
 
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Location</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Location</label>
                                 <div className="flex gap-2">
                                     <input
                                         type="text"

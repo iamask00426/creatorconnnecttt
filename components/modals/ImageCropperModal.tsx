@@ -75,7 +75,7 @@ export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({
 
             <div className="bg-slate-900 px-6 py-6 pb-12 flex flex-col gap-6 rounded-t-3xl border-t border-white/10 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
                 <div className="flex items-center gap-4">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest min-w-[30px]">Zoom</span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest min-w-[30px]">Zoom</span>
                     <input
                         type="range"
                         value={zoom}

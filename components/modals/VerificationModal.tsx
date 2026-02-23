@@ -79,15 +79,15 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
 
                             <div className="flex flex-col items-center gap-3 w-1/3">
                                 <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs font-black text-slate-400 shadow-sm">1</div>
-                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Go to Reel</span>
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Go to Reel</span>
                             </div>
                             <div className="flex flex-col items-center gap-3 w-1/3">
                                 <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs font-black text-slate-400 shadow-sm">2</div>
-                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Comment</span>
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Comment</span>
                             </div>
                             <div className="flex flex-col items-center gap-3 w-1/3">
                                 <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-xs font-black text-slate-400 shadow-sm">3</div>
-                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Verify</span>
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Verify</span>
                             </div>
                         </div>
                     </div>
@@ -96,7 +96,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
                     <div className="space-y-4">
                         <button
                             onClick={handleOpenReel}
-                            className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group"
+                            className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 group"
                         >
                             <span>Open Instagram Link</span>
                             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
@@ -117,7 +117,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
 
                         {status === 'error' && (
                             <div className="bg-red-50 p-3 rounded-xl border border-red-100 animate-fade-in-up">
-                                <p className="text-[10px] text-red-500 font-bold">{errorMessage}</p>
+                                <p className="text-xs text-red-500 font-bold">{errorMessage}</p>
                             </div>
                         )}
 
@@ -131,7 +131,7 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ isOpen, on
                         <button
                             onClick={handleVerify}
                             disabled={status === 'verifying' || status === 'success'}
-                            className={`w-full py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl ${status === 'success'
+                            className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-xl ${status === 'success'
                                     ? 'bg-green-500 text-white shadow-green-500/20'
                                     : 'bg-slate-900 text-white shadow-slate-900/20 hover:bg-slate-800 active:scale-95'
                                 } disabled:opacity-70 disabled:cursor-not-allowed`}

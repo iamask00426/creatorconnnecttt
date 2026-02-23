@@ -146,7 +146,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
                             {/* Weekday Headers */}
                             {weekDays.map((day, i) => (
                                 <div key={`head-${i}`} className="w-8 h-4 flex items-center justify-center">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wide">{day}</span>
+                                    <span className="text-xs font-black text-slate-400 uppercase tracking-wide">{day}</span>
                                 </div>
                             ))}
                             
@@ -199,7 +199,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
                             className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl shadow-lg shadow-slate-900/20 active:scale-95 transition-all"
                         >
                             <PlusIcon className="w-4 h-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Add</span>
+                            <span className="text-xs font-black uppercase tracking-widest">Add</span>
                         </button>
                     </div>
 
@@ -216,14 +216,14 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
                                         <div className="p-4 flex-grow">
                                             <div className="flex justify-between items-start mb-2">
                                                 <h4 className="font-bold text-slate-900 text-base">{event.title}</h4>
-                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md bg-opacity-10 text-opacity-80 ${getEventColor(event.type).replace('bg-', 'text-')} ${getEventColor(event.type).replace('bg-', 'bg-')}`}>
+                                                <span className={`text-xs font-black uppercase tracking-widest px-2 py-1 rounded-md bg-opacity-10 text-opacity-80 ${getEventColor(event.type).replace('bg-', 'text-')} ${getEventColor(event.type).replace('bg-', 'bg-')}`}>
                                                     {event.type === 'content' ? 'CONTENT SHOOT' : event.type}
                                                 </span>
                                             </div>
                                             
                                             {/* Location Display */}
                                             {event.location && (
-                                                <div className="flex items-center gap-1.5 mb-2 text-[10px] font-bold text-slate-500">
+                                                <div className="flex items-center gap-1.5 mb-2 text-xs font-bold text-slate-500">
                                                     <LocationPinIcon className="w-3.5 h-3.5 text-violet-600" />
                                                     <span>{event.location}</span>
                                                 </div>
@@ -285,7 +285,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
                         <div className="space-y-6 overflow-y-auto hide-scrollbar flex-grow pb-4">
                             {/* Title Field */}
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Title</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Title</label>
                                 <input 
                                     type="text" 
                                     value={newEventTitle} 
@@ -298,7 +298,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
 
                             {/* Date Field */}
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Date</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Date</label>
                                 <div className="relative group">
                                     <input 
                                         type="date" 
@@ -319,7 +319,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
 
                             {/* Type Field */}
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Type</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Type</label>
                                 <div className="flex gap-3">
                                     {['content', 'collab', 'meeting'].map(type => (
                                         <button
@@ -339,7 +339,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
 
                             {/* Location Field */}
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Location</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Location</label>
                                 <div className="relative group">
                                     <input 
                                         type="text" 
@@ -356,7 +356,7 @@ export const CalendarScreen: React.FC<CalendarScreenProps> = ({ userData, onUpda
 
                             {/* Notes / Script Field */}
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Notes / Script</label>
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Notes / Script</label>
                                 <textarea 
                                     value={newEventTime} 
                                     onChange={e => setNewEventTime(e.target.value)} 

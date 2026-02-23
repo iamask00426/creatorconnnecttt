@@ -100,7 +100,7 @@ export const MagicMatchModal: React.FC<MagicMatchModalProps> = ({ currentUser, o
 
                         <div className="text-center space-y-4">
                             <h2 className="text-2xl font-black text-white tracking-tight">Syncing Creators...</h2>
-                            <p className="text-[10px] font-black text-violet-400 uppercase tracking-[0.4em] animate-pulse">{statusText}</p>
+                            <p className="text-xs font-black text-violet-400 uppercase tracking-[0.4em] animate-pulse">{statusText}</p>
                         </div>
                     </div>
                 ) : matchedCreator ? (
@@ -118,12 +118,12 @@ export const MagicMatchModal: React.FC<MagicMatchModalProps> = ({ currentUser, o
                                 </div>
 
                                 <h2 className="text-3xl font-black text-slate-900 mb-1">Aura Match!</h2>
-                                <p className="text-slate-400 font-black text-[10px] mb-8 uppercase tracking-widest">Synergy Detected</p>
+                                <p className="text-slate-400 font-black text-xs mb-8 uppercase tracking-widest">Synergy Detected</p>
 
                                 <div className="bg-slate-50 rounded-[2rem] p-6 text-left mb-8 border border-slate-100 shadow-inner">
                                     <div className="flex items-center gap-2 mb-3">
                                         <BoltIcon className="w-3.5 h-3.5 text-violet-600" />
-                                        <span className="text-[9px] font-black text-slate-900 uppercase tracking-widest">CreatorConnect Insight</span>
+                                        <span className="text-xs font-black text-slate-900 uppercase tracking-widest">CreatorConnect Insight</span>
                                     </div>
                                     <p className="text-xs text-slate-600 leading-relaxed font-bold italic">
                                         "{aiReason}"
@@ -131,10 +131,10 @@ export const MagicMatchModal: React.FC<MagicMatchModalProps> = ({ currentUser, o
                                 </div>
 
                                 <div className="flex gap-4 w-full">
-                                    <button onClick={onClose} className="flex-1 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">Dismiss</button>
+                                    <button onClick={onClose} className="flex-1 py-4 text-xs font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">Dismiss</button>
                                     <button
                                         onClick={() => { onViewProfile(matchedCreator); onClose(); }}
-                                        className="flex-[2] px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
+                                        className="flex-[2] px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
                                     >
                                         Connect Now
                                     </button>
@@ -149,7 +149,7 @@ export const MagicMatchModal: React.FC<MagicMatchModalProps> = ({ currentUser, o
                         </div>
                         <h3 className="text-lg font-black text-slate-900 mb-2">Expansion Pending</h3>
                         <p className="text-xs text-slate-500 font-medium mb-8">No compatible sync partners found at this exact frequency.</p>
-                        <button onClick={onClose} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest">Close Matrix</button>
+                        <button onClick={onClose} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest">Close Matrix</button>
                     </div>
                 )}
             </div>

@@ -44,7 +44,7 @@ export const CompleteProjectModal: React.FC<CompleteProjectModalProps> = ({ isOp
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="relative group text-left">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-3 mb-1.5 block">Post / Reel Link</label>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-3 mb-1.5 block">Post / Reel Link</label>
                             <input 
                                 type="url" 
                                 value={link}
@@ -53,12 +53,12 @@ export const CompleteProjectModal: React.FC<CompleteProjectModalProps> = ({ isOp
                                 className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all placeholder:text-slate-300"
                                 autoFocus
                             />
-                            {error && <p className="text-[10px] text-red-500 font-bold mt-2 ml-2">{error}</p>}
+                            {error && <p className="text-xs text-red-500 font-bold mt-2 ml-2">{error}</p>}
                         </div>
 
                         <button 
                             type="submit"
-                            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all mt-2"
+                            className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all mt-2"
                         >
                             Confirm Completion
                         </button>

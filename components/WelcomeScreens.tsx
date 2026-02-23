@@ -124,9 +124,9 @@ const PlatformFeaturesOverlay = () => (
                 <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-fuchsia-500 rounded-full animate-ping"></div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Creator Invite</span>
+                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Creator Invite</span>
                     </div>
-                    <span className="text-[9px] font-bold text-slate-300">2m ago</span>
+                    <span className="text-xs font-bold text-slate-300">2m ago</span>
                 </div>
 
                 <div className="flex items-center gap-3 mb-4">
@@ -138,14 +138,14 @@ const PlatformFeaturesOverlay = () => (
                     </div>
                     <div>
                         <h3 className="text-sm font-black text-slate-900 leading-tight">Sarah Jenkins</h3>
-                        <p className="text-[10px] font-bold text-slate-400 mt-0.5">Travel Photographer</p>
-                        <p className="text-[10px] font-bold text-violet-600 mt-0.5">"Bali Content Trip"</p>
+                        <p className="text-xs font-bold text-slate-400 mt-0.5">Travel Photographer</p>
+                        <p className="text-xs font-bold text-violet-600 mt-0.5">"Bali Content Trip"</p>
                     </div>
                 </div>
 
                 <div className="flex gap-2">
-                    <div className="flex-1 py-2.5 bg-slate-50 rounded-lg flex items-center justify-center text-[9px] font-black text-slate-400 uppercase tracking-wider border border-slate-100">Ignore</div>
-                    <div className="flex-1 py-2.5 bg-slate-900 rounded-lg flex items-center justify-center text-[9px] font-black text-white uppercase tracking-wider shadow-lg shadow-slate-900/20">Let's Go</div>
+                    <div className="flex-1 py-2.5 bg-slate-50 rounded-lg flex items-center justify-center text-xs font-black text-slate-400 uppercase tracking-wider border border-slate-100">Ignore</div>
+                    <div className="flex-1 py-2.5 bg-slate-900 rounded-lg flex items-center justify-center text-xs font-black text-white uppercase tracking-wider shadow-lg shadow-slate-900/20">Let's Go</div>
                 </div>
             </div>
         </div>
@@ -154,18 +154,18 @@ const PlatformFeaturesOverlay = () => (
         <div className="absolute top-[25%] right-[12%] z-10 w-48 animate-[bounce_5s_infinite]">
             <div className="bg-white/90 backdrop-blur-xl p-4 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border border-white/60 transform rotate-6 hover:rotate-0 transition-transform duration-500">
                 <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Upcoming Shoot</span>
+                    <span className="text-xs font-black text-slate-900 uppercase tracking-widest">Upcoming Shoot</span>
                     <svg className="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
 
                 <div className="flex gap-3 items-center bg-violet-50 p-2 rounded-xl border border-violet-100">
                     <div className="bg-white w-10 h-10 rounded-lg flex flex-col items-center justify-center border border-slate-100 shadow-sm text-center">
-                        <span className="text-[8px] font-bold text-red-500 uppercase leading-none">Oct</span>
+                        <span className="text-xs font-bold text-red-500 uppercase leading-none">Oct</span>
                         <span className="text-sm font-black text-slate-900 leading-none">28</span>
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-slate-900 leading-tight">Golden Hour Vlog</p>
-                        <p className="text-[9px] font-medium text-slate-500">5:30 PM • Santa Monica</p>
+                        <p className="text-xs font-black text-slate-900 leading-tight">Golden Hour Vlog</p>
+                        <p className="text-xs font-medium text-slate-500">5:30 PM • Santa Monica</p>
                     </div>
                 </div>
             </div>
@@ -193,13 +193,13 @@ const CommunityOverlay = () => (
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 animate-[spin_20s_linear_infinite_reverse]">
                     <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse"></div>
-                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Fashion</span>
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Fashion</span>
                 </div>
             </div>
             <div className="absolute bottom-[15%] left-[5%]">
                 <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 animate-[spin_20s_linear_infinite_reverse]">
                     <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></div>
-                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Tech</span>
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Tech</span>
                 </div>
             </div>
         </div>
@@ -214,7 +214,7 @@ const CommunityOverlay = () => (
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2">
                 <div className="bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2 animate-[spin_15s_linear_infinite]">
                     <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
-                    <span className="text-[9px] font-bold text-white uppercase tracking-wider">Lifestyle</span>
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">Lifestyle</span>
                 </div>
             </div>
         </div>
@@ -388,14 +388,14 @@ export const WelcomeScreens: React.FC<WelcomeScreensProps> = ({ onComplete, onSt
                         {!currentScreen.isLast ? (
                             <button
                                 onClick={onComplete}
-                                className="text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors"
+                                className="text-xs font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors"
                             >
                                 Skip Intro
                             </button>
                         ) : (
                             <button
                                 onClick={onComplete}
-                                className="text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors"
+                                className="text-xs font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors"
                             >
                                 Already have an account?
                             </button>

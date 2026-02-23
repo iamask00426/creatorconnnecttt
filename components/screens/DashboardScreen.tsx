@@ -31,7 +31,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     <div className="absolute inset-0 bg-violet-500 blur-2xl opacity-20 animate-pulse rounded-full"></div>
                     <div className="w-24 h-24 bg-gradient-to-tr from-slate-900 to-slate-800 rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-slate-900/20 relative z-10 rotate-3 transition-transform hover:rotate-0 duration-500 cursor-pointer group">
                         <BoltIcon className="w-10 h-10 text-white group-hover:scale-110 transition-transform duration-300" />
-                        <div className="absolute -right-2 -top-2 bg-white text-slate-900 text-[10px] font-black px-2 py-1 rounded-full shadow-lg border-2 border-slate-50">
+                        <div className="absolute -right-2 -top-2 bg-white text-slate-900 text-xs font-black px-2 py-1 rounded-full shadow-lg border-2 border-slate-50">
                             WIP
                         </div>
                     </div>
@@ -62,7 +62,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = () => {
                     </span>
                 </button>
 
-                <p className="mt-8 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+                <p className="mt-8 text-xs font-bold text-slate-300 uppercase tracking-widest">
                     Estimated Launch: Q4 2026
                 </p>
             </div>

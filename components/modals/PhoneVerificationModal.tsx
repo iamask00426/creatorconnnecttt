@@ -103,12 +103,12 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                                 className="w-full text-center py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 font-bold text-lg focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all mb-4 placeholder:text-slate-300"
                             />
 
-                            {error && <p className="text-[10px] text-red-500 font-bold mb-4">{error}</p>}
+                            {error && <p className="text-xs text-red-500 font-bold mb-4">{error}</p>}
 
                             <button
                                 onClick={handleSendCode}
                                 disabled={isSending}
-                                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-slate-900/20 hover:bg-slate-800 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-slate-900/20 hover:bg-slate-800 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                             >
                                 {isSending ? 'Sending...' : 'Send Code'}
                             </button>
@@ -134,17 +134,17 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({ 
                                 ))}
                             </div>
 
-                            {error && <p className="text-[10px] text-red-500 font-bold mb-4">{error}</p>}
+                            {error && <p className="text-xs text-red-500 font-bold mb-4">{error}</p>}
 
                             <button
                                 onClick={handleVerify}
                                 disabled={isVerifying}
-                                className="w-full py-4 bg-violet-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-violet-500/20 hover:bg-violet-700 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
+                                className="w-full py-4 bg-violet-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-violet-500/20 hover:bg-violet-700 active:scale-95 transition-all disabled:opacity-70 flex items-center justify-center gap-2"
                             >
                                 {isVerifying ? 'Verifying...' : 'Verify'}
                             </button>
 
-                            <button onClick={handleBack} className="mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider hover:text-slate-600">
+                            <button onClick={handleBack} className="mt-4 text-xs font-bold text-slate-400 uppercase tracking-wider hover:text-slate-600">
                                 Change Number
                             </button>
                         </>

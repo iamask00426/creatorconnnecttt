@@ -241,7 +241,7 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({ currentUser, chatPartner
                                     </button>
                                 )}
                             </div>
-                            <span className="text-[10px] text-slate-400 mt-1 px-1 font-medium">
+                            <span className="text-xs text-slate-400 mt-1 px-1 font-medium">
                                 {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '...'}
                             </span>
                             {msg.status === 'error' && isMe && (

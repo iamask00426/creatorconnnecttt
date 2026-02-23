@@ -47,13 +47,13 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, setActive
                                         />
                                         {/* Notification Badge */}
                                         {showNotifBadge && (
-                                            <span className="absolute -top-2 -right-2.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black rounded-full border-2 border-white shadow-lg animate-bounce-in">
+                                            <span className="absolute -top-2 -right-2.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-xs font-black rounded-full border-2 border-white shadow-lg animate-bounce-in">
                                                 {notificationCount > 99 ? '99+' : notificationCount}
                                             </span>
                                         )}
                                         {/* Message Badge */}
                                         {showMsgBadge && (
-                                            <span className="absolute -top-2 -right-2.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-violet-500 text-white text-[10px] font-black rounded-full border-2 border-white shadow-lg animate-bounce-in">
+                                            <span className="absolute -top-2 -right-2.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-violet-500 text-white text-xs font-black rounded-full border-2 border-white shadow-lg animate-bounce-in">
                                                 {messageCount > 99 ? '99+' : messageCount}
                                             </span>
                                         )}

@@ -102,32 +102,32 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
                         <img src={userData.photoURL} className="relative z-10 w-24 h-24 rounded-3xl border-4 border-white shadow-2xl object-cover mb-4" alt="" />
                         <h2 className="relative z-10 text-2xl font-black text-white">{userData.displayName}</h2>
-                        <p className="relative z-10 text-violet-400 text-[10px] font-black uppercase tracking-widest">{userData.niche}</p>
+                        <p className="relative z-10 text-violet-400 text-xs font-black uppercase tracking-widest">{userData.niche}</p>
                     </div>
 
                     <div className="p-8 space-y-10">
                         <div className="grid grid-cols-3 gap-4 py-8 border-y border-slate-100 text-center">
                             <div>
-                                <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mb-1">Followers</p>
+                                <p className="text-xs text-slate-400 font-black uppercase tracking-widest mb-1">Followers</p>
                                 <p className="text-2xl font-black text-slate-950">{new Intl.NumberFormat('en-US', { notation: 'compact' }).format(userData.followerCount)}</p>
                             </div>
                             <div className="border-x border-slate-100">
-                                <p className="text-[8px] text-violet-600 font-black uppercase tracking-widest mb-1">Engagement</p>
+                                <p className="text-xs text-violet-600 font-black uppercase tracking-widest mb-1">Engagement</p>
                                 <p className="text-2xl font-black text-violet-600">{stats?.engagementRate || '...'}</p>
                             </div>
                             <div>
-                                <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest mb-1">Performance Score</p>
+                                <p className="text-xs text-slate-400 font-black uppercase tracking-widest mb-1">Performance Score</p>
                                 <p className="text-2xl font-black text-slate-950">{stats?.brandFitScore || '...'}</p>
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
                                 <BoltIcon className="w-3 h-3 text-amber-500" /> Professional Performance Signals
                             </h3>
                             <div className="grid gap-3">
                                 {stats?.audienceInsights.map((insight, i) => (
-                                    <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-[11px] font-bold text-slate-700 animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
+                                    <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-xs font-bold text-slate-700 animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>
                                         {insight}
                                     </div>
                                 ))}
@@ -140,10 +140,10 @@ export const MediaKitModal: React.FC<MediaKitModalProps> = ({ userData, onClose 
                             <div className="bg-slate-950 p-8 rounded-[3rem] shadow-2xl max-w-sm w-full border border-white/10 text-center">
                                 <div className="w-16 h-16 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
                                 <h3 className="text-white font-black uppercase tracking-widest text-xs mb-2">Creator Connect Audit</h3>
-                                <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest">Scanning @{userData.displayName}</p>
+                                <p className="text-white/40 text-xs font-bold uppercase tracking-widest">Scanning @{userData.displayName}</p>
                                 <div className="mt-8 space-y-1.5 text-left max-h-32 overflow-hidden">
                                     {auditLog.map((log, i) => (
-                                        <div key={i} className="text-[8px] font-mono text-slate-500">{log}</div>
+                                        <div key={i} className="text-xs font-mono text-slate-500">{log}</div>
                                     ))}
                                 </div>
                             </div>

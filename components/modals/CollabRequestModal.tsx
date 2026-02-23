@@ -52,7 +52,7 @@ export const CollabRequestModal: React.FC<CollabRequestModalProps> = ({ sender, 
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Project Name</label>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Project Name</label>
                         <input
                             type="text"
                             value={projectName}
@@ -63,7 +63,7 @@ export const CollabRequestModal: React.FC<CollabRequestModalProps> = ({ sender, 
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Concept / Description</label>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Concept / Description</label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
@@ -74,7 +74,7 @@ export const CollabRequestModal: React.FC<CollabRequestModalProps> = ({ sender, 
                     </div>
 
                     <div>
-                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Proposed Date</label>
+                        <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Proposed Date</label>
                         <div className="relative">
                             <input
                                 type="date"
@@ -93,21 +93,21 @@ export const CollabRequestModal: React.FC<CollabRequestModalProps> = ({ sender, 
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-500 bg-white border border-slate-100 hover:bg-slate-50 transition-colors"
+                            className="flex-1 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-500 bg-white border border-slate-100 hover:bg-slate-50 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-[2] py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white bg-slate-900 shadow-xl shadow-slate-900/10 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                            className="flex-[2] py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest text-white bg-slate-900 shadow-xl shadow-slate-900/10 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {isSubmitting ? 'Sending...' : 'Send Request'}
                         </button>
                     </div>
 
                     {status && (
-                        <p className={`text-center text-[10px] font-bold uppercase tracking-wide mt-2 ${status.includes('Failed') || status.includes('fill') ? 'text-red-500' : 'text-green-500'}`}>
+                        <p className={`text-center text-xs font-bold uppercase tracking-wide mt-2 ${status.includes('Failed') || status.includes('fill') ? 'text-red-500' : 'text-green-500'}`}>
                             {status}
                         </p>
                     )}

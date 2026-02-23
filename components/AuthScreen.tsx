@@ -38,11 +38,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = () => {
                     <h2 className="text-xl font-bold text-white mb-2">Welcome Back</h2>
                     <p className="text-xs text-slate-400 font-medium mb-8">Sign in to continue to your dashboard</p>
 
-                    {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-2xl text-[10px] uppercase font-bold w-full mb-4">{error}</div>}
+                    {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-2xl text-xs uppercase font-bold w-full mb-4">{error}</div>}
 
                     <button onClick={handleGoogleSignIn} className="w-full py-4 flex items-center justify-center gap-3 bg-white text-slate-950 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-white/5">
                         <GoogleIcon className="w-5 h-5" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Continue with Google</span>
+                        <span className="text-xs font-black uppercase tracking-widest">Continue with Google</span>
                     </button>
 
                     <button onClick={() => {
@@ -51,10 +51,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = () => {
                         window.location.reload();
                     }} className="w-full mt-4 py-4 flex items-center justify-center gap-3 bg-slate-800 text-white rounded-2xl hover:bg-slate-700 active:scale-95 transition-all shadow-xl shadow-white/5">
                         <BoltIcon className="w-5 h-5 text-orange-500" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Test Demo Login</span>
+                        <span className="text-xs font-black uppercase tracking-widest">Test Demo Login</span>
                     </button>
 
-                    <p className="mt-8 text-[9px] text-slate-500 font-medium max-w-[200px]">
+                    <p className="mt-8 text-xs text-slate-500 font-medium max-w-[200px]">
                         By continuing, you agree to our Terms of Service and Privacy Policy.
                     </p>
                 </div>

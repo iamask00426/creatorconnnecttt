@@ -622,7 +622,7 @@ const steps = [
                 <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-rose-500"></div>
                 <div className="flex justify-between items-center mb-4">
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Top Match</span>
-                    <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-[10px] font-bold border border-green-500/20">98% Compatible</span>
+                    <span className="bg-green-500/10 text-green-400 px-2 py-0.5 rounded text-xs font-bold border border-green-500/20">98% Compatible</span>
                 </div>
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full bg-zinc-700 border-2 border-zinc-800"></div>
@@ -658,7 +658,7 @@ const steps = [
                         </div>
                     </div>
                     <div className="flex justify-center mt-4">
-                        <div className="bg-zinc-950 border border-white/10 text-white text-[10px] font-bold py-1.5 px-4 rounded-full flex items-center gap-2">
+                        <div className="bg-zinc-950 border border-white/10 text-white text-xs font-bold py-1.5 px-4 rounded-full flex items-center gap-2">
                             <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                             Collab Scheduled: Oct 14, 5PM
                         </div>

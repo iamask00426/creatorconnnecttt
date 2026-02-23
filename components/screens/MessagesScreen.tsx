@@ -52,7 +52,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                     <div>
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight">Messages</h1>
                         {chats.length > 0 && (
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                                 {unreadChats.length > 0 ? `${unreadChats.length} unread` : 'All caught up ✓'}
                             </p>
                         )}
@@ -60,7 +60,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                     {unreadChats.length > 0 && (
                         <div className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-100 rounded-full">
                             <span className="w-2 h-2 bg-violet-500 rounded-full animate-pulse"></span>
-                            <span className="text-[10px] font-black text-violet-700 uppercase tracking-wider">{unreadChats.length} New</span>
+                            <span className="text-xs font-black text-violet-700 uppercase tracking-wider">{unreadChats.length} New</span>
                         </div>
                     )}
                 </div>
@@ -89,10 +89,11 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                         {/* Avatar */}
                                         <div className="relative flex-shrink-0 ml-1">
                                             <img
-                                                src={chat.partner.photoURL}
+                                                src={chat.partner.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.partner.displayName || 'Creator')}&background=random`}
                                                 className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform"
                                                 alt={chat.partner.displayName}
                                                 referrerPolicy="no-referrer"
+                                                onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(chat.partner.displayName || 'Creator') + '&background=random'; }}
                                             />
                                             <span className="absolute -bottom-0.5 -right-0.5 block h-3.5 w-3.5 rounded-full bg-green-500 border-2 border-white ring-2 ring-green-100"></span>
                                         </div>
@@ -101,7 +102,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                         <div className="flex-grow overflow-hidden min-w-0">
                                             <div className="flex justify-between items-center mb-1">
                                                 <h3 className="font-black text-sm text-slate-900 truncate">{chat.partner.displayName}</h3>
-                                                <span className="text-[10px] font-bold text-violet-600 flex-shrink-0 ml-2">{formatTimestamp(chat.lastMessage.timestamp)}</span>
+                                                <span className="text-xs font-bold text-violet-600 flex-shrink-0 ml-2">{formatTimestamp(chat.lastMessage.timestamp)}</span>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <p className="text-xs font-bold text-slate-700 truncate flex-grow">{chat.lastMessage.text}</p>
@@ -115,7 +116,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                 {readChats.length > 0 && (
                                     <div className="flex items-center gap-3 py-3 px-2">
                                         <div className="flex-grow h-px bg-slate-200"></div>
-                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Earlier</span>
+                                        <span className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Earlier</span>
                                         <div className="flex-grow h-px bg-slate-200"></div>
                                     </div>
                                 )}
@@ -133,10 +134,11 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                 {/* Avatar */}
                                 <div className="relative flex-shrink-0">
                                     <img
-                                        src={chat.partner.photoURL}
+                                        src={chat.partner.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.partner.displayName || 'Creator')}&background=random`}
                                         className="w-12 h-12 rounded-2xl object-cover border border-slate-100 group-hover:scale-105 transition-transform"
                                         alt={chat.partner.displayName}
                                         referrerPolicy="no-referrer"
+                                        onError={(e) => { e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(chat.partner.displayName || 'Creator') + '&background=random'; }}
                                     />
                                     <span className="absolute -bottom-0.5 -right-0.5 block h-3 w-3 rounded-full bg-slate-300 border-2 border-white"></span>
                                 </div>
@@ -145,7 +147,7 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                                 <div className="flex-grow overflow-hidden min-w-0">
                                     <div className="flex justify-between items-center mb-0.5">
                                         <h3 className="font-bold text-sm text-slate-700 truncate">{chat.partner.displayName}</h3>
-                                        <span className="text-[10px] text-slate-400 flex-shrink-0 ml-2">{formatTimestamp(chat.lastMessage.timestamp)}</span>
+                                        <span className="text-xs text-slate-400 flex-shrink-0 ml-2">{formatTimestamp(chat.lastMessage.timestamp)}</span>
                                     </div>
                                     <p className="text-xs text-slate-400 truncate font-medium">{chat.lastMessage.text}</p>
                                 </div>
@@ -154,14 +156,17 @@ export const MessagesScreen: React.FC<MessagesScreenProps> = ({ currentUser, onS
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center pt-24 px-8 animate-fade-in-up">
-                        <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
+                        <div className="relative w-24 h-24 mb-6">
+                            <div className="absolute inset-0 bg-violet-200 rounded-full animate-pulse opacity-50 blur-xl"></div>
+                            <div className="relative w-full h-full bg-gradient-to-tr from-violet-100 to-indigo-50 rounded-[2rem] flex items-center justify-center shadow-inner border border-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                            </div>
                         </div>
-                        <h3 className="text-base font-black text-slate-900 mb-2">No conversations yet</h3>
-                        <p className="text-xs text-slate-400 text-center leading-relaxed font-medium">
-                            Find creators you'd love to collab with and start a conversation!
+                        <h3 className="text-lg font-black text-slate-800 mb-2">No conversations yet</h3>
+                        <p className="text-sm text-slate-500 text-center leading-relaxed font-medium">
+                            Find creators you'd love to collab with on the Discover map!
                         </p>
                     </div>
                 )}

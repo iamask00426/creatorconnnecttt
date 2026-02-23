@@ -257,7 +257,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                         <div>
                             <h2 className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight leading-none">Content Studio</h2>
                             <div className="flex items-center gap-2 mt-1.5">
-                                <p className="text-[9px] font-black text-violet-600 uppercase tracking-[0.2em]">{isOffline ? 'Offline Mode' : 'AI Creative Director'}</p>
+                                <p className="text-xs font-black text-violet-600 uppercase tracking-[0.2em]">{isOffline ? 'Offline Mode' : 'AI Creative Director'}</p>
                                 {isOffline && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />}
                             </div>
                         </div>
@@ -296,7 +296,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                 <button
                                     type="submit"
                                     disabled={!cityInput.trim()}
-                                    className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none hover:shadow-2xl hover:shadow-violet-900/10"
+                                    className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none hover:shadow-2xl hover:shadow-violet-900/10"
                                 >
                                     Generate Ideas
                                 </button>
@@ -314,14 +314,14 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                             <h3 className="text-2xl font-black text-slate-900 mb-2">Developing Concepts</h3>
                             <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-violet-50 rounded-full mb-8">
                                 <span className="w-2 h-2 bg-violet-600 rounded-full animate-pulse"></span>
-                                <p className="text-[10px] text-violet-700 font-black uppercase tracking-widest">
+                                <p className="text-xs text-violet-700 font-black uppercase tracking-widest">
                                     Tailoring to {userData.niche}
                                 </p>
                             </div>
 
                             <div className="space-y-3 text-left w-full max-w-[260px] mx-auto bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                                 {statusLog.map((log, i) => (
-                                    <div key={i} className="text-[10px] font-bold text-slate-500 flex items-center gap-3 animate-fade-in font-mono">
+                                    <div key={i} className="text-xs font-bold text-slate-500 flex items-center gap-3 animate-fade-in font-mono">
                                         <span className="text-violet-400">➜</span>
                                         {log}
                                     </div>
@@ -337,14 +337,14 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                         <LocationPinIcon className="w-5 h-5 text-violet-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Target Context</p>
+                                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Target Context</p>
                                         <p className="text-sm font-bold text-slate-900 leading-none mt-0.5">{cityInput}</p>
                                     </div>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => { setIsAskingCity(true); setIdeas([]); }}
-                                    className="text-[10px] font-black text-slate-500 hover:text-slate-800 uppercase tracking-widest px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors"
+                                    className="text-xs font-black text-slate-500 hover:text-slate-800 uppercase tracking-widest px-4 py-2 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors"
                                 >
                                     Change
                                 </button>
@@ -353,7 +353,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                             {ideas.map((idea, idx) => (
                                 <div key={idx} className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all group animate-fade-in-up" style={{ animationDelay: `${idx * 150}ms` }}>
                                     <div className="flex justify-between items-start mb-5">
-                                        <div className="bg-slate-900 text-white text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg shadow-slate-900/10">
+                                        <div className="bg-slate-900 text-white text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-widest shadow-lg shadow-slate-900/10">
                                             Concept 0{idx + 1}
                                         </div>
                                     </div>
@@ -363,34 +363,34 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                     <div className="space-y-4">
                                         <div className="bg-violet-50/50 p-5 rounded-2xl border border-violet-100/50 relative overflow-hidden">
                                             <div className="absolute top-0 left-0 w-1 h-full bg-violet-500"></div>
-                                            <p className="text-[9px] font-black text-violet-600 uppercase tracking-widest mb-2">The Hook</p>
+                                            <p className="text-xs font-black text-violet-600 uppercase tracking-widest mb-2">The Hook</p>
                                             <p className="text-sm font-bold text-slate-800 italic relative z-10">"{idea.hook}"</p>
                                         </div>
 
                                         <div className="px-2">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Direction</p>
+                                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Direction</p>
                                             <p className="text-xs text-slate-600 leading-relaxed font-medium">{idea.concept}</p>
                                         </div>
 
                                         <div className="flex flex-col sm:flex-row gap-3 pt-2">
                                             <div className="flex-1 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                                <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                                     <LocationPinIcon className="w-3 h-3 text-slate-900" /> Location
                                                 </p>
-                                                <p className="text-[11px] font-bold text-slate-900 leading-tight">{idea.shootLocation}</p>
+                                                <p className="text-xs font-bold text-slate-900 leading-tight">{idea.shootLocation}</p>
                                             </div>
                                             <div className="flex-1 bg-amber-50/50 p-4 rounded-xl border border-amber-100/50">
-                                                <p className="text-[8px] font-black text-amber-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                <p className="text-xs font-black text-amber-600 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                                     <SparklesIcon className="w-3 h-3 text-amber-500" /> Pro Tip
                                                 </p>
-                                                <p className="text-[11px] font-bold text-amber-900 leading-tight opacity-90">{idea.locationTips}</p>
+                                                <p className="text-xs font-bold text-amber-900 leading-tight opacity-90">{idea.locationTips}</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     {schedulingIdx === idx ? (
                                         <div className="mt-6 pt-6 border-t border-slate-100 animate-fade-in">
-                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest block mb-4 text-center">Select Shoot Date</label>
+                                            <label className="text-xs font-black text-slate-900 uppercase tracking-widest block mb-4 text-center">Select Shoot Date</label>
                                             <input
                                                 type="date"
                                                 value={scheduleDate}
@@ -401,7 +401,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                                 <button
                                                     type="button"
                                                     onClick={() => setSchedulingIdx(null)}
-                                                    className="flex-1 py-3.5 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-100 rounded-xl transition-colors"
+                                                    className="flex-1 py-3.5 text-xs font-black text-slate-500 uppercase tracking-widest hover:bg-slate-100 rounded-xl transition-colors"
                                                 >
                                                     Cancel
                                                 </button>
@@ -409,7 +409,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                                     type="button"
                                                     onClick={() => handleConfirmSchedule(idea, idx)}
                                                     disabled={!scheduleDate}
-                                                    className="flex-[2] py-3.5 bg-violet-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-violet-600/20 active:scale-95 transition-all disabled:opacity-50"
+                                                    className="flex-[2] py-3.5 bg-violet-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-violet-600/20 active:scale-95 transition-all disabled:opacity-50"
                                                 >
                                                     Confirm & Add
                                                 </button>
@@ -420,7 +420,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                                             type="button"
                                             onClick={() => handleInitiateSchedule(idx)}
                                             disabled={savedIdeas.has(idx)}
-                                            className={`w-full mt-6 py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 ${savedIdeas.has(idx)
+                                            className={`w-full mt-6 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-md flex items-center justify-center gap-2 ${savedIdeas.has(idx)
                                                 ? 'bg-green-50 text-green-600 border border-green-200 cursor-default shadow-none'
                                                 : 'bg-slate-900 text-white shadow-slate-900/10 hover:shadow-xl hover:shadow-slate-900/20'
                                                 }`}
@@ -439,7 +439,7 @@ export const ContentIdeaModal: React.FC<ContentIdeaModalProps> = ({ userData, on
                             ))}
 
                             <div className="text-center pt-6 pb-2">
-                                <p className="text-[8px] font-black text-slate-300 uppercase tracking-[0.3em]">
+                                <p className="text-xs font-black text-slate-300 uppercase tracking-[0.3em]">
                                     {isOffline ? 'Offline Mode • Dynamic Generator' : 'Powered by creator connect ai'}
                                 </p>
                             </div>
