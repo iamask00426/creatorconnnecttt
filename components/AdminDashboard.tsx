@@ -703,6 +703,28 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         .map(([name, value]) => ({ name, value }))
         .sort((a, b) => Number(b.value) - Number(a.value));
 
+    const cityCounts = users.reduce((acc, user) => {
+        let city = 'Unknown';
+        if (user.city) {
+            city = user.city.split(',')[0].trim();
+        } else if (user.location) {
+            city = user.location.split(',')[0].trim();
+        }
+
+        // Normalize city name (capitalize first letter)
+        if (city !== 'Unknown') {
+            city = city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
+        }
+
+        acc[city] = (acc[city] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const cityData = Object.entries(cityCounts)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => Number(b.value) - Number(a.value))
+        .slice(0, 5); // Top 5 cities
+
     const renderSidebar = () => (
         <aside className="w-64 bg-white border-r border-slate-200 min-h-screen fixed left-0 top-0 bottom-0 z-40 hidden md:flex flex-col">
             <div className="p-6 border-b border-slate-100 flex items-center justify-between">
@@ -837,6 +859,31 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                 >
                                     {genderData.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+                    <h3 className="text-lg font-bold text-slate-900 mb-4">Top User Cities</h3>
+                    <div className="h-64 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={cityData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {cityData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[(index + 3) % COLORS.length]} />
                                     ))}
                                 </Pie>
                                 <Tooltip />

@@ -10,7 +10,7 @@ import { countryCodes } from '../data/countryCodes';
 
 interface OnboardingFlowProps {
     userData: UserData;
-    onComplete: (data: Partial<UserData>) => void;
+    onComplete: (data: Partial<UserData>) => Promise<void> | void;
 }
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComplete }) => {
@@ -74,13 +74,31 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
         }
     };
 
-    const handleNext = () => {
-        if (!displayName || !niche || !location || !phoneNumber || !gender) {
+    const handleNext = async () => {
+        if (!displayName || !niche || !location || !phoneNumber || !gender || isSubmitting) {
             return;
         }
-        // Fire-and-forget WhatsApp welcome message
-        sendWhatsAppWelcome(`${countryCode}${phoneNumber}`, displayName);
-        setStep(2);
+        setIsSubmitting(true);
+        try {
+            // 1. Save step-1 data to Firebase first
+            const step1Data: Partial<UserData> = {
+                displayName,
+                niche,
+                location,
+                phoneNumber: `${countryCode} ${phoneNumber}`,
+                gender: gender as any,
+            };
+            await onComplete(step1Data);
+
+            // 2. Fire WhatsApp welcome message after data is saved
+            sendWhatsAppWelcome(`${countryCode}${phoneNumber}`, displayName);
+
+            setStep(2);
+        } catch (err) {
+            console.error('[Onboarding] Failed to save step-1 data:', err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleBack = () => setStep(prev => prev - 1);
@@ -335,10 +353,17 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ userData, onComp
 
                         <button
                             onClick={handleNext}
-                            disabled={!displayName || !niche || !location || !phoneNumber || !gender}
+                            disabled={!displayName || !niche || !location || !phoneNumber || !gender || isSubmitting}
                             className="w-full py-4 mt-8 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl disabled:opacity-50 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                         >
-                            Next: Verify Identity
+                            {isSubmitting ? (
+                                <>
+                                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    Saving...
+                                </>
+                            ) : (
+                                'Next: Verify Identity'
+                            )}
                         </button>
                     </div>
                 )}
