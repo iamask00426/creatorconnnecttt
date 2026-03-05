@@ -373,15 +373,7 @@ const App: React.FC = () => {
 
     const handleWelcomeComplete = () => {
         setShowWelcomeScreens(false);
-        // If no user is logged in (e.g. skipped intro), create a guest user to trigger onboarding
-        if (!authUserId) {
-            const guestUser: UserData = {
-                ...baseNewUser,
-                uid: `guest-${Date.now()}`,
-                profileStatus: 'onboarding'
-            } as UserData;
-            setUserData(guestUser);
-        }
+        // User will see AuthScreen if not authenticated, ensuring data is saved to Firestore
     };
 
     const handleVerificationClose = () => {
