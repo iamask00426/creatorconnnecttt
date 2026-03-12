@@ -323,8 +323,12 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             // Send WhatsApp approval notification when profile is approved
             if (status === 'active') {
                 const user = users.find(u => u.uid === uid);
+                console.log('[Admin] Approving user:', uid, 'Phone:', user?.phoneNumber, 'Name:', user?.displayName);
                 if (user?.phoneNumber && user?.displayName) {
+                    console.log('[Admin] Sending WhatsApp approval to:', user.phoneNumber);
                     sendWhatsAppApproval(user.phoneNumber, user.displayName);
+                } else {
+                    console.warn('[Admin] Cannot send WhatsApp: missing phone or name', { phone: user?.phoneNumber, name: user?.displayName });
                 }
             }
         } catch (error) {
