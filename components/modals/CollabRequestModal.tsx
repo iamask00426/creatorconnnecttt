@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import type { UserData, Creator } from '../../types';
 import { sendCollabRequest } from '../../services/firebase';
+import { sendWhatsAppConnection } from '../../services/whatsapp';
 import { CalendarIcon } from '../icons';
 
 interface CollabRequestModalProps {
@@ -35,6 +36,17 @@ export const CollabRequestModal: React.FC<CollabRequestModalProps> = ({ sender, 
                 description,
                 dates, // This will now be YYYY-MM-DD
             });
+
+            // Send WhatsApp notification to the receiver
+            if (receiver.phoneNumber) {
+                sendWhatsAppConnection(
+                    receiver.phoneNumber,
+                    receiver.displayName || 'Creator',
+                    sender.displayName || 'Someone',
+                    sender.username
+                );
+            }
+
             setStatus('Request Sent!');
             setTimeout(onClose, 300);
         } catch (error) {

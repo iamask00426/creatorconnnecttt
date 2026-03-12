@@ -2,15 +2,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Creator, UserData } from '../../types';
 import { fetchAllCreators } from '../../services/firebase';
-import { SearchIcon, SparklesIcon, PlusIcon, LocationPinIcon, VideoCameraIcon, MyLocationIcon } from '../icons';
+import { SearchIcon, SparklesIcon, PlusIcon, LocationPinIcon, VideoCameraIcon, MyLocationIcon, BoltIcon } from '../icons';
 import { MagicMatchModal } from '../modals/MagicMatchModal';
 import { ContentIdeaModal } from '../modals/ContentIdeaModal';
 import { CreatorCardSkeleton } from '../loaders/CreatorCardSkeleton';
+
+interface ProfileCompletionResult {
+    isComplete: boolean;
+    missingFields: string[];
+    filledCount: number;
+    totalRequired: number;
+}
 
 interface HomeScreenProps {
     onViewProfile: (creator: Creator) => void;
     currentUser: UserData;
     onUpdateUserData: (data: Partial<UserData>) => void;
+    isProfileComplete?: boolean;
+    profileCompletion?: ProfileCompletionResult;
+    onCompleteProfile?: () => void;
 }
 
 // Haversine formula to calculate distance between two coordinates in km
@@ -134,13 +144,34 @@ const CITY_IMAGES: Record<string, string> = {
 
 const DEFAULT_CITY_IMAGE = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=300&q=80';
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUser, onUpdateUserData }) => {
+const CHECKLIST_FIELDS = [
+    { key: 'name', label: 'Full Name', icon: '👤' },
+    { key: 'username', label: 'Unique Link', icon: '🔗' },
+    { key: 'socials', label: '2+ Social Handles', icon: '📱' },
+    { key: 'followers', label: 'Total Followers', icon: '👥' },
+    { key: 'bio', label: 'Bio', icon: '✍️' },
+    { key: 'photo', label: 'Profile Picture', icon: '📸' },
+];
+
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUser, onUpdateUserData, isProfileComplete, profileCompletion, onCompleteProfile }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeLocation, setActiveLocation] = useState('');
     const [creators, setCreators] = useState<Creator[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isMagicMatchOpen, setIsMagicMatchOpen] = useState(false);
     const [isContentIdeasOpen, setIsContentIdeasOpen] = useState(false);
+    const [showCompletePopup, setShowCompletePopup] = useState(false);
+
+    // Show popup on mount if profile is incomplete
+    useEffect(() => {
+        if (isProfileComplete === false) {
+            // Small delay for a smoother entrance
+            const timer = setTimeout(() => setShowCompletePopup(true), 600);
+            return () => clearTimeout(timer);
+        } else {
+            setShowCompletePopup(false);
+        }
+    }, [isProfileComplete]);
 
     // AI Semantic Location
     const [aiNearbyCities, setAiNearbyCities] = useState<string[]>([]);
@@ -532,6 +563,102 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onViewProfile, currentUs
                     onClose={() => setIsContentIdeasOpen(false)}
                     onUpdateUserData={onUpdateUserData}
                 />
+            )}
+
+            {/* Complete Your Profile Popup */}
+            {showCompletePopup && profileCompletion && !profileCompletion.isComplete && (
+                <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center animate-fade-in" onClick={() => setShowCompletePopup(false)}>
+                    {/* Backdrop */}
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+                    {/* Popup Card */}
+                    <div
+                        className="relative z-10 w-full max-w-sm mx-4 mb-24 sm:mb-0 bg-white rounded-[2rem] shadow-2xl overflow-hidden animate-slide-up"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Gradient Header */}
+                        <div className="relative bg-gradient-to-br from-slate-900 via-violet-950 to-slate-900 px-6 pt-6 pb-8 overflow-hidden">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-violet-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 w-32 h-32 bg-rose-500/15 rounded-full blur-[50px] pointer-events-none"></div>
+
+                            {/* Close Button */}
+                            <button
+                                onClick={() => setShowCompletePopup(false)}
+                                className="absolute top-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white/70 hover:bg-white/20 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            <div className="flex items-center gap-3 mb-3 relative z-10">
+                                <div className="w-12 h-12 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center">
+                                    <BoltIcon className="w-6 h-6 text-orange-400" />
+                                </div>
+                                <div>
+                                    <h2 className="text-lg font-black text-white tracking-tight">Complete Your Profile</h2>
+                                    <p className="text-xs text-slate-400 font-medium">Unlock the full experience</p>
+                                </div>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="relative z-10">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{profileCompletion.filledCount}/{profileCompletion.totalRequired} Complete</span>
+                                    <span className="text-[10px] font-black text-orange-400">{Math.round((profileCompletion.filledCount / profileCompletion.totalRequired) * 100)}%</span>
+                                </div>
+                                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-orange-500 to-rose-500 rounded-full transition-all duration-1000 ease-out"
+                                        style={{ width: `${(profileCompletion.filledCount / profileCompletion.totalRequired) * 100}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Checklist */}
+                        <div className="px-5 py-4 space-y-2">
+                            {CHECKLIST_FIELDS.map((field) => {
+                                const isChecked = !profileCompletion.missingFields.some(m => {
+                                    const lower = m.toLowerCase();
+                                    return field.label.toLowerCase().includes(lower) ||
+                                        lower.includes(field.label.toLowerCase()) ||
+                                        (field.key === 'socials' && lower.includes('social')) ||
+                                        (field.key === 'name' && lower.includes('name')) ||
+                                        (field.key === 'photo' && lower.includes('picture'));
+                                });
+                                return (
+                                    <div key={field.key} className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${isChecked ? 'bg-green-50' : 'bg-slate-50'}`}>
+                                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${isChecked ? 'bg-green-100' : 'bg-white border border-slate-200'}`}>
+                                            {isChecked ? (
+                                                <svg className="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                            ) : (
+                                                <span className="text-xs">{field.icon}</span>
+                                            )}
+                                        </div>
+                                        <span className={`text-xs font-bold ${isChecked ? 'text-green-600' : 'text-slate-600'}`}>{field.label}</span>
+                                        {isChecked && <span className="ml-auto text-[8px] font-black text-green-500 uppercase tracking-widest">Done</span>}
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* CTA */}
+                        <div className="px-5 pb-5">
+                            <button
+                                onClick={() => { setShowCompletePopup(false); onCompleteProfile?.(); }}
+                                className="w-full py-3.5 bg-gradient-to-r from-orange-500 via-rose-500 to-violet-500 text-white rounded-2xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-rose-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
+                                Complete Profile Now
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

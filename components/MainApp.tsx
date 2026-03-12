@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import type { UserData, Creator, AppNotification, CollabRequest } from '../types';
 import { getNotificationsStream, getCollabRequestsStream, getChatsStream } from '../services/firebase';
 
@@ -11,6 +11,8 @@ import { CreatorProfilePage } from './screens/CreatorProfilePage';
 import { ChatScreen } from './screens/ChatScreen';
 import { DashboardScreen } from './screens/DashboardScreen';
 import { BottomNavBar } from './BottomNavBar';
+import { CompleteProfileScreen } from './screens/CompleteProfileScreen';
+import { getProfileCompletionStatus } from '../utils/profileCompletion';
 
 interface MainAppProps {
     userData: UserData;
@@ -106,7 +108,7 @@ export const MainApp: React.FC<MainAppProps> = ({ userData, onUpdateUserData, on
     // This stays mounted in the background to preserve state and scroll position
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'home': return <HomeScreen currentUser={userData} onViewProfile={handleViewProfile} onUpdateUserData={onUpdateUserData} />;
+            case 'home': return <HomeScreen currentUser={userData} onViewProfile={handleViewProfile} onUpdateUserData={onUpdateUserData} isProfileComplete={profileCompletion.isComplete} profileCompletion={profileCompletion} onCompleteProfile={handleCompleteProfile} />;
             case 'explore': return <ExploreScreen currentUser={userData} onViewProfile={handleViewProfile} forceMapView={forceMapView} onMapViewEnd={() => setForceMapView(false)} />;
             case 'projects': return <DashboardScreen currentUser={userData} setActiveTab={setActiveTab} onViewProfile={handleViewProfile} />;
             case 'messages': return <MessagesScreen currentUser={userData} onStartChat={handleStartChat} />;
@@ -128,6 +130,13 @@ export const MainApp: React.FC<MainAppProps> = ({ userData, onUpdateUserData, on
     const isOverlayOpen = viewingProfile || chattingWith;
     // We only show nav bar if no overlay is open
     const isNavBarVisible = !isOverlayOpen;
+
+    const profileCompletion = useMemo(() => getProfileCompletionStatus(userData), [userData]);
+
+    const handleCompleteProfile = useCallback(() => {
+        setActiveTab('profile');
+        setForceProfileEdit(true);
+    }, []);
 
     if (!userData) return <div className="p-10 text-center">Initializing Profile...</div>;
 

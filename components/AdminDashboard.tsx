@@ -12,6 +12,7 @@ import {
     deleteBlogPost,
     uploadBlogImage
 } from '../services/firebase';
+import { sendWhatsAppApproval } from '../services/whatsapp';
 import { SEED_USERS } from '../utils/seedData';
 import type { Creator, Collaboration, Feedback, BlogPost } from '../types';
 import { UserEditModal } from './modals/UserEditModal';
@@ -318,6 +319,14 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         if (!uid) return;
         try {
             await updateUserProfile(uid, { profileStatus: status });
+
+            // Send WhatsApp approval notification when profile is approved
+            if (status === 'active') {
+                const user = users.find(u => u.uid === uid);
+                if (user?.phoneNumber && user?.displayName) {
+                    sendWhatsAppApproval(user.phoneNumber, user.displayName);
+                }
+            }
         } catch (error) {
             console.error("Failed to update status", error);
             alert("Failed to update status");

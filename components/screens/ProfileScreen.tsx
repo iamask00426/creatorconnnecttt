@@ -5,6 +5,7 @@ import { SettingsScreen } from './SettingsScreen';
 import { AccountSettingsScreen } from './AccountSettingsScreen';
 import { InstagramOriginalIcon, TiktokIcon, SnapchatIcon, PlusIcon, LocationPinIcon, CameraIcon, YoutubeIcon, TwitterIcon, MyLocationIcon, BoltIcon, StarIcon, PhoneIcon, BookmarkIcon, CalendarIcon } from '../icons';
 import { uploadProfileImage, getRatingsStream, getUser, checkUsernameAvailability } from '../../services/firebase';
+import { getProfileCompletionStatus } from '../../utils/profileCompletion';
 import { VerificationModal } from '../modals/VerificationModal';
 import { PhoneVerificationModal } from '../modals/PhoneVerificationModal';
 import { ImageCropperModal } from '../modals/ImageCropperModal';
@@ -113,7 +114,37 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
         }
     };
 
+    // Profile completion check for edit view validation
+    const editCompletionStatus = useMemo(() => getProfileCompletionStatus(editedData), [editedData]);
+    const [showValidationErrors, setShowValidationErrors] = useState(false);
+
+    // Helper to check if a specific field is missing for validation highlighting
+    const isFieldMissing = useCallback((fieldKey: string): boolean => {
+        if (!showValidationErrors) return false;
+        switch (fieldKey) {
+            case 'displayName': return !editedData.displayName || editedData.displayName.trim() === '' || editedData.displayName === 'New Creator';
+            case 'username': return !editedData.username || editedData.username.trim() === '';
+            case 'bio': return !editedData.bio || editedData.bio.trim() === '';
+            case 'followerCount': return !editedData.followerCount || editedData.followerCount <= 0;
+            case 'photoURL': return !editedData.photoURL || editedData.photoURL.trim() === '';
+            case 'socials': {
+                const filledSocials = ['instagram', 'youtube', 'tiktok', 'twitter', 'snapchat'].filter(
+                    p => !!(editedData as any)[p] && (editedData as any)[p].trim() !== ''
+                );
+                return filledSocials.length < 2;
+            }
+            default: return false;
+        }
+    }, [showValidationErrors, editedData]);
+
     const handleSave = () => {
+        // Check profile completion before saving
+        const status = getProfileCompletionStatus(editedData);
+        if (!status.isComplete) {
+            setShowValidationErrors(true);
+            return;
+        }
+
         // Only send editable fields to prevent overwriting server-managed counters (collabs, rating)
         const editableFields: Partial<UserData> = {
             displayName: editedData.displayName,
@@ -151,6 +182,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
             editableFields.instagramVerified = true;
         }
 
+        setShowValidationErrors(false);
         onUpdateUserData(editableFields);
         setCurrentView('profile');
         onEditFlowEnd?.();
@@ -273,10 +305,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     />
                 )}
 
-                <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/50 px-5 py-4 flex justify-between items-center">
-                    <button onClick={() => { setCurrentView('profile'); onEditFlowEnd?.(); }} className="text-xs font-black text-slate-400 uppercase tracking-widest px-2 py-1">Cancel</button>
-                    <h1 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Edit Profile</h1>
-                    <button onClick={handleSave} className="text-xs font-black text-violet-600 uppercase tracking-widest px-2 py-1 bg-violet-50 rounded-lg">Save</button>
+                <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200/50 px-5 py-4 flex flex-col">
+                    <div className="flex justify-between items-center">
+                        <button onClick={() => { setShowValidationErrors(false); setCurrentView('profile'); onEditFlowEnd?.(); }} className="text-xs font-black text-slate-400 uppercase tracking-widest px-2 py-1">Cancel</button>
+                        <h1 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]">Edit Profile</h1>
+                        <button onClick={handleSave} className="text-xs font-black text-violet-600 uppercase tracking-widest px-2 py-1 bg-violet-50 rounded-lg">Save</button>
+                    </div>
+                    {showValidationErrors && !editCompletionStatus.isComplete && (
+                        <div className="mt-2 p-2.5 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 animate-fade-in">
+                            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <span className="text-[10px] font-bold text-red-600">Missing: {editCompletionStatus.missingFields.join(', ')}</span>
+                        </div>
+                    )}
                 </header>
 
                 <div className="flex-grow overflow-y-auto hide-scrollbar p-5 space-y-6 pb-32">
@@ -310,14 +352,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     </div>
 
                     <div className="space-y-4">
-                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Full Name</label>
+                        <div className={`p-4 bg-white rounded-2xl border shadow-sm ${isFieldMissing('displayName') ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-100'}`}>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Full Name {isFieldMissing('displayName') && <span className="text-red-500">*</span>}</label>
                             <input type="text" value={editedData.displayName} onChange={e => setEditedData({ ...editedData, displayName: e.target.value })} className="w-full text-md font-bold text-slate-900 outline-none bg-transparent" placeholder="Your name" />
                         </div>
 
                         {/* Unique Link Section */}
-                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm relative">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Unique Link Loop</label>
+                        <div className={`p-4 bg-white rounded-2xl border shadow-sm relative ${isFieldMissing('username') ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-100'}`}>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Unique Link Loop {isFieldMissing('username') && <span className="text-red-500">*</span>}</label>
                             <div className="flex items-center gap-1 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-violet-500 transition-colors">
                                 <span className="text-xs font-bold text-slate-400 whitespace-nowrap">creatorconnect.io/</span>
                                 <input
@@ -414,8 +456,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                         </div>
 
                         {/* Follower Count Edit Section */}
-                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Total Followers</label>
+                        <div className={`p-4 bg-white rounded-2xl border shadow-sm ${isFieldMissing('followerCount') ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-100'}`}>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Total Followers {isFieldMissing('followerCount') && <span className="text-red-500">*</span>}</label>
                             <input
                                 type="number"
                                 value={editedData.followerCount || ''}
@@ -425,8 +467,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                             />
                         </div>
 
-                        <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Bio</label>
+                        <div className={`p-4 bg-white rounded-2xl border shadow-sm ${isFieldMissing('bio') ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-100'}`}>
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest block mb-1.5">Bio {isFieldMissing('bio') && <span className="text-red-500">*</span>}</label>
                             <textarea rows={3} value={editedData.bio} onChange={e => setEditedData({ ...editedData, bio: e.target.value })} className="w-full text-xs font-medium text-slate-600 outline-none resize-none bg-transparent leading-relaxed" placeholder="Tell the world about yourself..." />
                         </div>
 
@@ -442,7 +484,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     </div>
 
                     <div className="space-y-4">
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] px-1">Social Handles</h3>
+                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] px-1">Social Handles {isFieldMissing('socials') && <span className="text-red-500 text-[10px] font-bold ml-2 bg-red-50 px-2 py-0.5 rounded-md normal-case">Add at least 2</span>}</h3>
                         <div className="grid grid-cols-1 gap-3">
                             {[
                                 { id: 'instagram', icon: InstagramOriginalIcon, label: 'Instagram', color: '' },
