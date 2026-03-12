@@ -19,7 +19,8 @@ app.use(express.static(path.join(__dirname, 'dist')));
 // Welcome message (existing)
 app.post('/api/send-whatsapp', async (req, res) => {
     try {
-        const { phone, name } = req.body;
+        const { phone: rawPhone, name } = req.body;
+        const phone = rawPhone?.replace(/[\s\-\+]/g, '');
         if (!phone || !name) return res.status(400).json({ error: 'phone and name are required' });
 
         const payload = {
@@ -61,7 +62,8 @@ app.post('/api/send-whatsapp', async (req, res) => {
 // Profile approved message
 app.post('/api/send-whatsapp-approval', async (req, res) => {
     try {
-        const { phone, name } = req.body;
+        const { phone: rawPhone, name } = req.body;
+        const phone = rawPhone?.replace(/[\s\-\+]/g, '');
         if (!phone || !name) return res.status(400).json({ error: 'phone and name are required' });
 
         const payload = {
@@ -103,7 +105,8 @@ app.post('/api/send-whatsapp-approval', async (req, res) => {
 // Connection request message
 app.post('/api/send-whatsapp-connection', async (req, res) => {
     try {
-        const { phone, receiverName, senderName, link } = req.body;
+        const { phone: rawPhone, receiverName, senderName, link } = req.body;
+        const phone = rawPhone?.replace(/[\s\-\+]/g, '');
         if (!phone || !receiverName || !senderName || !link) {
             return res.status(400).json({ error: 'phone, receiverName, senderName, and link are required' });
         }

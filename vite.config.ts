@@ -91,7 +91,8 @@ function whatsappProxyPlugin(authKey: string): Plugin {
         req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
         req.on('end', async () => {
           try {
-            const { phone, name } = JSON.parse(body);
+            const { phone: rawPhone, name } = JSON.parse(body);
+            const phone = rawPhone.replace(/[\s\-\+]/g, '');
             if (!phone || !name) {
               res.statusCode = 400;
               res.end(JSON.stringify({ error: 'phone and name are required' }));
@@ -161,7 +162,8 @@ function whatsappProxyPlugin(authKey: string): Plugin {
         req.on('data', (chunk: Buffer) => { body += chunk.toString(); });
         req.on('end', async () => {
           try {
-            const { phone, receiverName, senderName, link } = JSON.parse(body);
+            const { phone: rawPhone, receiverName, senderName, link } = JSON.parse(body);
+            const phone = rawPhone.replace(/[\s\-\+]/g, '');
             if (!phone || !receiverName || !senderName || !link) {
               res.statusCode = 400;
               res.end(JSON.stringify({ error: 'phone, receiverName, senderName, and link are required' }));

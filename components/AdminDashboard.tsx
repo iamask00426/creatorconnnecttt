@@ -327,8 +327,10 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 if (user?.phoneNumber && user?.displayName) {
                     console.log('[Admin] Sending WhatsApp approval to:', user.phoneNumber);
                     sendWhatsAppApproval(user.phoneNumber, user.displayName);
+                    alert(`✅ User approved & WhatsApp sent to ${user.phoneNumber}`);
                 } else {
                     console.warn('[Admin] Cannot send WhatsApp: missing phone or name', { phone: user?.phoneNumber, name: user?.displayName });
+                    alert(`✅ User approved, but WhatsApp NOT sent — ${!user?.phoneNumber ? 'no phone number on file' : 'no display name'}`);
                 }
             }
         } catch (error) {
