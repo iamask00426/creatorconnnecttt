@@ -13,6 +13,7 @@ import { DashboardScreen } from './screens/DashboardScreen';
 import { BottomNavBar } from './BottomNavBar';
 import { CompleteProfileScreen } from './screens/CompleteProfileScreen';
 import { getProfileCompletionStatus } from '../utils/profileCompletion';
+import { useTimeTracking } from '../hooks/useTimeTracking';
 
 interface MainAppProps {
     userData: UserData;
@@ -22,6 +23,8 @@ interface MainAppProps {
 }
 
 export const MainApp: React.FC<MainAppProps> = ({ userData, onUpdateUserData, onLogout, isGlobalModalOpen }) => {
+    useTimeTracking(userData); // Start tracking time spent
+
     const [activeTab, setActiveTab] = useState('home');
     const [viewingProfile, setViewingProfile] = useState<Creator | null>(null);
     const [chattingWith, setChattingWith] = useState<Creator | null>(null);

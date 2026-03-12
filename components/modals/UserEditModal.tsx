@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Creator } from '../../types';
 import { updateUserProfile } from '../../services/firebase';
+import { sendWhatsAppApproval } from '../../services/whatsapp';
 
 interface UserEditModalProps {
     user: Creator;
@@ -11,6 +12,15 @@ interface UserEditModalProps {
 export const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onSave }) => {
     const [formData, setFormData] = useState<Partial<Creator>>({});
     const [loading, setLoading] = useState(false);
+
+    const formatTimeSpent = (ms?: number) => {
+        if (!ms) return '0m';
+        const totalMinutes = Math.floor(ms / 60000);
+        if (totalMinutes < 60) return `${totalMinutes}m`;
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        return `${hours}h ${mins}m`;
+    };
 
     useEffect(() => {
         setFormData({
@@ -35,6 +45,23 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onS
         setLoading(true);
         try {
             await updateUserProfile(user.uid, formData);
+
+            // Send WhatsApp approval notification if status CHANGED to active
+            if (formData.profileStatus === 'active' && user.profileStatus !== 'active') {
+                const phone = formData.phoneNumber || user.phoneNumber;
+                const name = formData.displayName || user.displayName;
+                console.log('[Admin] Editing user to Active:', user.uid, 'Phone:', phone, 'Name:', name);
+                
+                if (phone && name) {
+                    console.log('[Admin] Sending WhatsApp approval to:', phone);
+                    sendWhatsAppApproval(phone, name);
+                    alert(`✅ User approved & WhatsApp sent to ${phone}`);
+                } else {
+                    console.warn('[Admin] Cannot send WhatsApp: missing phone or name', { phone, name });
+                    alert(`✅ User approved, but WhatsApp NOT sent — ${!phone ? 'no phone number on file' : 'no display name'}`);
+                }
+            }
+
             onSave({ ...user, ...formData } as Creator);
             onClose();
         } catch (error) {
@@ -100,15 +127,22 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ user, onClose, onS
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-500 uppercase">Phone Number</label>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    name="phoneNumber"
-                                    value={formData.phoneNumber || ''}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-violet-500 font-bold text-slate-900"
-                                />
-                            </div>
+                            <input
+                                type="text"
+                                name="phoneNumber"
+                                value={formData.phoneNumber || ''}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-violet-500 font-bold text-slate-900"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-slate-500 uppercase">Time Spent (Active)</label>
+                            <input
+                                type="text"
+                                value={formatTimeSpent(user.totalTimeSpentMs)}
+                                disabled
+                                className="w-full px-4 py-3 rounded-xl bg-slate-100 border-none text-violet-600 font-black cursor-not-allowed"
+                            />
                         </div>
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-slate-500 uppercase">Instagram Status</label>

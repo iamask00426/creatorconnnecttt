@@ -53,6 +53,7 @@ export interface Creator {
     collabs: number;
     rating: number;
     ratingCount: number;
+    totalTimeSpentMs?: number; // Added to track usage time
     phoneNumber?: string;
     phoneNumberVerified?: boolean;
     dateOfBirth?: string;
