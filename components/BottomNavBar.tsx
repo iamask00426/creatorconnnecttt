@@ -34,7 +34,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, setActive
                                     key={item.name}
                                     onClick={() => setActiveTab(item.name)}
                                     data-tour-id={item.tourId}
-                                    className="relative flex flex-col items-center justify-center w-full h-10 tap-bounce group"
+                                    className={`relative flex flex-col items-center justify-center w-full h-10 tap-bounce group tour-${item.name}-tab`}
                                 >
                                     {isActive && (
                                         <div className="absolute inset-x-2 inset-y-0 bg-slate-900 rounded-full transition-all duration-300 shadow-md"></div>

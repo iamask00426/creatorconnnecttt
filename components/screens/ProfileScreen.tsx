@@ -276,7 +276,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
         }));
     };
 
-    if (currentView === 'settings') return <SettingsScreen onNavigate={setCurrentView} currentUser={userData} onLogout={onLogout} />;
+    if (currentView === 'settings') return <SettingsScreen onNavigate={setCurrentView} currentUser={userData} onUpdateUserData={onUpdateUserData} onLogout={onLogout} />;
     if (currentView === 'accountSettings') return <AccountSettingsScreen onNavigate={setCurrentView} currentUser={userData} />;
     if (currentView === 'saved') return <SavedProfilesView savedIds={userData.savedProfiles || []} onViewProfile={onViewProfile} onBack={() => setCurrentView('profile')} />;
     if (currentView === 'calendar') return <CalendarScreen userData={userData} onUpdateUserData={onUpdateUserData} onBack={() => setCurrentView('profile')} />;

@@ -62,6 +62,7 @@ export interface Creator {
     country?: string;
     profileStatus?: CreatorProfileStatus; // Added 'onboarding'
     username?: string; // Unique username for custom link
+    hasSeenTour?: boolean; // Added to track platform tour completion
 }
 
 export type UserData = Creator;
