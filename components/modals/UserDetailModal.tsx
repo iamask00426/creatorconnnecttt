@@ -123,7 +123,6 @@ export const UserDetailModal: React.FC<UserDetailModalProps> = ({ user, onClose 
                             <SectionHeader title="Contact Info" />
                             <div className="space-y-1">
                                 <DetailRow label="Phone Number" value={user.phoneNumber} isCopyable />
-                                <DetailRow label="Phone Verified" value={user.phoneNumberVerified ? '✅ Yes' : '❌ No'} />
                             </div>
                         </div>
                     </div>

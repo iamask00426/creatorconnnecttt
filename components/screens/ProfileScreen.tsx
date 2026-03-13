@@ -7,7 +7,6 @@ import { InstagramOriginalIcon, TiktokIcon, SnapchatIcon, PlusIcon, LocationPinI
 import { uploadProfileImage, getRatingsStream, getUser, checkUsernameAvailability } from '../../services/firebase';
 import { getProfileCompletionStatus } from '../../utils/profileCompletion';
 import { VerificationModal } from '../modals/VerificationModal';
-import { PhoneVerificationModal } from '../modals/PhoneVerificationModal';
 import { ImageCropperModal } from '../modals/ImageCropperModal';
 import { ImageModal } from '../modals/ImageModal';
 import { SavedProfilesView } from './SavedProfilesView';
@@ -33,7 +32,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
     const [currentView, setCurrentView] = useState<'profile' | 'settings' | 'edit' | 'accountSettings' | 'personalDetails' | 'saved' | 'calendar'>('profile');
     const [editedData, setEditedData] = useState<UserData>(userData);
     const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-    const [isPhoneVerificationModalOpen, setIsPhoneVerificationModalOpen] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [myRatings, setMyRatings] = useState<any[]>([]);
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
@@ -167,7 +165,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
             pastCollaborations: editedData.pastCollaborations,
             photoURL: editedData.photoURL,
             phoneNumber: editedData.phoneNumber,
-            phoneNumberVerified: editedData.phoneNumberVerified,
         };
 
         // Security Check: If Instagram handle changed, revoke verification status
@@ -254,14 +251,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
             instagram: verifiedUsername,
             instagramVerified: true
         });
-    };
-
-    const handlePhoneVerifySuccess = (phoneNumber: string) => {
-        setEditedData(prev => ({
-            ...prev,
-            phoneNumber: phoneNumber,
-            phoneNumberVerified: true
-        }));
     };
 
     const handleAddCollab = () => {
@@ -411,23 +400,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                                     <input
                                         type="tel"
                                         value={editedData.phoneNumber || ''}
-                                        onChange={e => setEditedData({ ...editedData, phoneNumber: e.target.value, phoneNumberVerified: false })}
+                                        onChange={e => setEditedData({ ...editedData, phoneNumber: e.target.value })}
                                         className="w-full text-sm font-bold text-slate-900 outline-none bg-transparent"
                                         placeholder="+1 234 567 8900"
                                     />
-                                    {editedData.phoneNumberVerified ? (
-                                        <div className="flex items-center gap-1 text-xs font-black text-green-600 bg-green-50 px-2 py-1 rounded-md">
-                                            <span>Verified</span>
-                                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => setIsPhoneVerificationModalOpen(true)}
-                                            className="text-xs font-black text-white bg-slate-900 px-3 py-1.5 rounded-lg shadow-md hover:bg-slate-800 transition-colors uppercase tracking-wide"
-                                        >
-                                            Verify
-                                        </button>
-                                    )}
                                 </div>
                             </div>
                         </div>
@@ -600,12 +576,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ userData, onUpdate
                     onClose={() => setIsVerificationModalOpen(false)}
                     onVerifySuccess={handleVerificationSuccess}
                     initialUsername={editedData.instagram}
-                />
-                <PhoneVerificationModal
-                    isOpen={isPhoneVerificationModalOpen}
-                    onClose={() => setIsPhoneVerificationModalOpen(false)}
-                    onVerifySuccess={handlePhoneVerifySuccess}
-                    initialPhoneNumber={editedData.phoneNumber}
                 />
             </div >
         );

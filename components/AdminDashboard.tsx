@@ -618,7 +618,6 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                 u.rating || 0,
                 u.ratingCount || 0,
                 (u as any).phoneNumber || '',
-                (u as any).phoneNumberVerified ? 'Yes' : 'No',
                 (u as any).dateOfBirth || '',
                 (u as any).gender || '',
                 (u as any).city || '',
@@ -1111,7 +1110,6 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                 <th className="p-4 whitespace-nowrap">Rating</th>
                                 <th className="p-4 whitespace-nowrap">Rating Count</th>
                                 <th className="p-4 whitespace-nowrap">Phone</th>
-                                <th className="p-4 whitespace-nowrap">Phone Verified</th>
                                 <th className="p-4 whitespace-nowrap">DOB</th>
                                 <th className="p-4 whitespace-nowrap">Gender</th>
                                 <th className="p-4 whitespace-nowrap">City</th>
@@ -1169,7 +1167,6 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                                     <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.rating}</td>
                                     <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.ratingCount}</td>
                                     <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.phoneNumber}</td>
-                                    <td className="p-4 whitespace-nowrap text-sm">{user.phoneNumberVerified ? '✅' : '❌'}</td>
                                     <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.dateOfBirth}</td>
                                     <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.gender}</td>
                                     <td className="p-4 whitespace-nowrap text-sm text-slate-600">{user.city}</td>
