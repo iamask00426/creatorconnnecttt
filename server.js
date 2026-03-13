@@ -36,7 +36,7 @@ app.post('/api/send-whatsapp', async (req, res) => {
                     to_and_components: [{
                         to: [phone],
                         components: {
-                            body_1: { type: 'text', value: name },
+                            body_1: { type: 'text', value: name, parameter_name: '1' },
                         },
                     }],
                 },
@@ -79,7 +79,7 @@ app.post('/api/send-whatsapp-approval', async (req, res) => {
                     to_and_components: [{
                         to: [phone],
                         components: {
-                            body_name: { type: 'text', value: name, parameter_name: 'name' },
+                            body_1: { type: 'text', value: name, parameter_name: '1' },
                         },
                     }],
                 },

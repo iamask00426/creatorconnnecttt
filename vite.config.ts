@@ -42,7 +42,7 @@ function whatsappProxyPlugin(authKey: string): Plugin {
                     {
                       to: [phone],
                       components: {
-                        body_1: { type: 'text', value: name },
+                        body_1: { type: 'text', value: name, parameter_name: '1' },
                       },
                     },
                   ],
@@ -113,7 +113,7 @@ function whatsappProxyPlugin(authKey: string): Plugin {
                     {
                       to: [phone],
                       components: {
-                        body_name: { type: 'text', value: name, parameter_name: 'name' },
+                        body_1: { type: 'text', value: name, parameter_name: '1' },
                       },
                     },
                   ],
