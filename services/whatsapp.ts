@@ -6,7 +6,8 @@
 export const sendWhatsAppWelcome = async (phoneNumber: string, displayName: string): Promise<void> => {
     try {
         // Strip spaces, dashes, and leading '+' → pure digits with country code
-        const cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
+        let cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
         console.log('[WhatsApp Client] Sending to:', cleanPhone, 'Name:', displayName); // Debug log
 
         const response = await fetch('/api/send-whatsapp', {
@@ -33,7 +34,8 @@ export const sendWhatsAppWelcome = async (phoneNumber: string, displayName: stri
  */
 export const sendWhatsAppApproval = async (phoneNumber: string, displayName: string): Promise<void> => {
     try {
-        const cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
+        let cleanPhone = phoneNumber.replace(/[\s\-\+]/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
         console.log('[WhatsApp] Sending approval message to:', cleanPhone, 'Name:', displayName);
 
         const response = await fetch('/api/send-whatsapp-approval', {
@@ -64,7 +66,8 @@ export const sendWhatsAppConnection = async (
     senderUsername?: string
 ): Promise<void> => {
     try {
-        const cleanPhone = receiverPhone.replace(/[\s\-\+]/g, '');
+        let cleanPhone = receiverPhone.replace(/[\s\-\+]/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
         const link = senderUsername
             ? `https://creatorconnect.io/${senderUsername}`
             : 'https://creatorconnect.io';
