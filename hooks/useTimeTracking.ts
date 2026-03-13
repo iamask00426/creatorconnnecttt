@@ -40,14 +40,14 @@ export const useTimeTracking = (currentUser: UserData | null) => {
             }
         };
 
-        document.addEventListener('visibilityChange', handleVisibilityChange);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
         lastTickTime.current = Date.now();
         
         // Track actively every 2 seconds
         const trackInterval = window.setInterval(tick, 2000);
 
         return () => {
-            document.removeEventListener('visibilityChange', handleVisibilityChange);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
             clearInterval(trackInterval);
             syncTime(); // Sync remaining time when unmounted
         };

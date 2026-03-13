@@ -80,6 +80,7 @@ const sanitizeData = (data: any): any => {
     if (data === undefined) return null; // or undef depending on strategy, but null is safe
     if (data === null) return null;
     if (data instanceof Date) return data;
+    if (data instanceof firebase.firestore.FieldValue) return data;
     if (Array.isArray(data)) return data.map(sanitizeData);
     if (typeof data === 'object') {
         const sanitized: any = {};
