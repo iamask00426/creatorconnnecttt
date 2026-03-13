@@ -184,9 +184,9 @@ function whatsappProxyPlugin(authKey: string): Plugin {
                     {
                       to: [phone],
                       components: {
-                        body_receiver_name: { type: 'text', value: receiverName, parameter_name: 'receiver_name' },
-                        body_sender_name: { type: 'text', value: senderName, parameter_name: 'sender_name' },
-                        body_link: { type: 'text', value: link, parameter_name: 'link' },
+                        body_1: { type: 'text', value: receiverName, parameter_name: '1' },
+                        body_2: { type: 'text', value: senderName, parameter_name: '2' },
+                        body_3: { type: 'text', value: link, parameter_name: '3' },
                       },
                     },
                   ],
