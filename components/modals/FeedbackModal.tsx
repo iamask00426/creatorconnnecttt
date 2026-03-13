@@ -23,25 +23,27 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ currentUser, onClo
         setStatus('Sending...');
 
         try {
-            // Attempt to submit to Firestore
-            await submitFeedback({
+            // FIRE AND FORGET: Don't block the UI waiting for the database.
+            submitFeedback({
                 userId: currentUser.uid,
                 displayName: currentUser.displayName,
                 type: feedbackType,
                 message: message.trim(),
                 userAgent: navigator.userAgent,
+            }).catch(error => {
+                console.warn("Background feedback submission failed:", error);
             });
 
-            // Success path
+            // Instant success path
             setStatus('Thank you for your feedback!');
-            setTimeout(onClose, 300);
+            setTimeout(() => {
+                setIsSubmitting(false);
+                onClose();
+            }, 800); // Give user enough time to read the success message
         } catch (error) {
-            console.warn("Backend submission failed (likely permissions). Simulating success.", error);
-
-            // FORCE SUCCESS STATE: If backend fails, we still show success to the user
-            // to prevent the "failed" message loop in this demo/MVP environment.
-            setStatus('Thank you for your feedback!');
-            setTimeout(onClose, 300);
+            console.error(error);
+            setIsSubmitting(false);
+            onClose();
         }
     };
 
