@@ -17,6 +17,16 @@ export const UserDetailModal: React.FC<UserDetailModalProps> = ({ user, onClose 
         }
     };
 
+    // Helper to format time spent
+    const formatTimeSpent = (ms?: number) => {
+        if (!ms) return '0m';
+        const totalMinutes = Math.floor(ms / 60000);
+        if (totalMinutes < 60) return `${totalMinutes}m`;
+        const hours = Math.floor(totalMinutes / 60);
+        const mins = totalMinutes % 60;
+        return `${hours}h ${mins}m`;
+    };
+
     // Helper to render section headers
     const SectionHeader = ({ title }: { title: string }) => (
         <h3 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-2 mb-4 mt-6 first:mt-0">
@@ -130,6 +140,7 @@ export const UserDetailModal: React.FC<UserDetailModalProps> = ({ user, onClose 
                                 <DetailRow label="Collabs Count" value={user.collabs} />
                                 <DetailRow label="Rating" value={user.rating ? `${user.rating.toFixed(1)} / 5.0` : 'N/A'} />
                                 <DetailRow label="Rating Count" value={user.ratingCount} />
+                                <DetailRow label="Time Spent (Active)" value={formatTimeSpent(user.totalTimeSpentMs)} />
                                 <DetailRow label="Created At" value={formatDate(user.createdAt)} />
                             </div>
                         </div>
