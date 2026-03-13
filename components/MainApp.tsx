@@ -14,7 +14,7 @@ import { BottomNavBar } from './BottomNavBar';
 import { CompleteProfileScreen } from './screens/CompleteProfileScreen';
 import { getProfileCompletionStatus } from '../utils/profileCompletion';
 import { useTimeTracking } from '../hooks/useTimeTracking';
-import { PlatformTour } from './PlatformTour';
+import { WelcomeTourModal } from './modals/WelcomeTourModal';
 
 interface MainAppProps {
     userData: UserData;
@@ -146,8 +146,14 @@ export const MainApp: React.FC<MainAppProps> = ({ userData, onUpdateUserData, on
 
     return (
         <div className="h-full bg-slate-50 flex flex-col relative overflow-hidden font-sans antialiased text-slate-900">
-            {/* Global Platform Tour */}
-            <PlatformTour currentUser={userData} onUpdateUserData={onUpdateUserData} />
+            {/* Immersive Welcome Tour */}
+            {userData && userData.hasSeenTour !== true && (
+                <WelcomeTourModal 
+                    currentUser={userData} 
+                    onUpdateUserData={onUpdateUserData} 
+                    onClose={() => onUpdateUserData({ hasSeenTour: true })} 
+                />
+            )}
 
             {/* Main Content Layer - Always rendered to preserve state/scroll */}
             <div

@@ -10,12 +10,12 @@ interface BottomNavBarProps {
 }
 
 const navItems = [
-    { name: 'home', icon: HomeIcon, tourId: 'home-tab' },
-    { name: 'explore', icon: ExploreIcon, tourId: 'explore-tab' },
-    { name: 'projects', icon: BriefcaseIcon, tourId: 'projects-tab' },
-    { name: 'messages', icon: MessagesIcon, tourId: 'messages-tab' },
-    { name: 'notifications', icon: NotificationsIcon, tourId: 'notifications-tab' },
-    { name: 'profile', icon: ProfileIcon, tourId: 'profile-tab' }
+    { name: 'home', icon: HomeIcon },
+    { name: 'explore', icon: ExploreIcon },
+    { name: 'projects', icon: BriefcaseIcon },
+    { name: 'messages', icon: MessagesIcon },
+    { name: 'notifications', icon: NotificationsIcon },
+    { name: 'profile', icon: ProfileIcon }
 ];
 
 export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, setActiveTab, notificationCount = 0, messageCount = 0 }) => {
@@ -33,8 +33,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, setActive
                                 <button
                                     key={item.name}
                                     onClick={() => setActiveTab(item.name)}
-                                    data-tour-id={item.tourId}
-                                    className={`relative flex flex-col items-center justify-center w-full h-10 tap-bounce group tour-${item.name}-tab`}
+                                    className="relative flex flex-col items-center justify-center w-full h-10 tap-bounce group"
                                 >
                                     {isActive && (
                                         <div className="absolute inset-x-2 inset-y-0 bg-slate-900 rounded-full transition-all duration-300 shadow-md"></div>
