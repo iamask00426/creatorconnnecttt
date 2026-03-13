@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm install --legacy-peer-deps && vite build",
     "preview": "vite preview",
     "start": "node server.js"
   },
@@ -35,11 +35,5 @@
     "tailwindcss": "^4.1.18",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
-  },
-  "overrides": {
-    "react-joyride": {
-      "react": "^19.2.4",
-      "react-dom": "^19.2.4"
-    }
   }
 }
