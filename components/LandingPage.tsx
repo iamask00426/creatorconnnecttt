@@ -33,6 +33,7 @@ interface Testimonial {
 
 interface LandingPageProps {
     onGetStarted: () => void;
+    onNavigateAgency?: () => void;
 }
 
 // --- COMPONENTS ---
@@ -84,7 +85,7 @@ const LiveTicker: React.FC = () => {
 };
 
 // 2. Header
-const Header: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
+const Header: React.FC<{ onGetStarted: () => void; onNavigateAgency?: () => void }> = ({ onGetStarted, onNavigateAgency }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -101,6 +102,17 @@ const Header: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
         if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
             setIsMobileMenuOpen(false);
+        }
+    };
+
+    const handleAgencyClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsMobileMenuOpen(false);
+        if (onNavigateAgency) {
+            onNavigateAgency();
+        } else {
+            window.history.pushState({}, '', '/agency');
+            window.dispatchEvent(new PopStateEvent('popstate'));
         }
     };
 
@@ -122,16 +134,25 @@ const Header: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
                     </div>
 
                     {/* Desktop Nav */}
-                    <nav className="hidden md:flex space-x-1 items-center bg-white/5 backdrop-blur-md px-2 py-1.5 rounded-full border border-white/10">
+                    <nav className="hidden md:flex space-x-1 items-center bg-white/5 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/10">
                         {['Features', 'How it Works', 'Stories'].map((item) => (
                             <button
                                 key={item}
                                 onClick={() => scrollToSection(item.toLowerCase().replace(/\s+/g, '-').replace('stories', 'testimonials'))}
-                                className="px-5 py-2 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition-all"
+                                className="px-4 py-2 rounded-full text-sm font-medium text-zinc-300 hover:text-white hover:bg-white/10 transition-all"
                             >
                                 {item}
                             </button>
                         ))}
+                        <a
+                            href="/agency"
+                            onClick={handleAgencyClick}
+                            className="px-4 py-1.5 rounded-full text-xs font-bold text-rose-400 hover:text-white hover:bg-rose-500/20 bg-rose-500/10 border border-rose-500/30 transition-all flex items-center gap-1.5 shadow-sm shadow-rose-500/20"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
+                            <span>Agency</span>
+                            <span className="text-[10px] uppercase font-black tracking-wider text-rose-300 bg-rose-500/30 px-1 py-0.2 rounded">100% Transparent</span>
+                        </a>
                     </nav>
 
                     <div className="hidden md:flex items-center gap-3">
@@ -168,6 +189,13 @@ const Header: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
                         <button onClick={() => scrollToSection('features')} className="block w-full text-left px-3 py-3 text-zinc-300 hover:text-white hover:bg-white/5 rounded-xl">Features</button>
                         <button onClick={() => scrollToSection('how-it-works')} className="block w-full text-left px-3 py-3 text-zinc-300 hover:text-white hover:bg-white/5 rounded-xl">How it Works</button>
                         <button onClick={() => scrollToSection('testimonials')} className="block w-full text-left px-3 py-3 text-zinc-300 hover:text-white hover:bg-white/5 rounded-xl">Stories</button>
+                        <a
+                            href="/agency"
+                            onClick={handleAgencyClick}
+                            className="block w-full text-left px-3 py-3 text-rose-400 font-bold bg-rose-500/10 border border-rose-500/20 rounded-xl"
+                        >
+                            ⚡ Creator Connect Agency (Talent & Marketing) →
+                        </a>
                         <button onClick={onGetStarted} className="block w-full text-left px-3 py-3 text-brand-400 font-bold hover:bg-white/5 rounded-xl">Join Waitlist</button>
                     </div>
                 </div>
@@ -930,13 +958,51 @@ const FOOTER_MODALS: Record<string, { title: string; content: React.ReactNode }>
     },
 };
 
-const Footer: React.FC = () => {
+const Footer: React.FC<{ onNavigateAgency?: () => void }> = ({ onNavigateAgency }) => {
     const [activeModal, setActiveModal] = useState<string | null>(null);
+
+    const handleAgencyClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (onNavigateAgency) {
+            onNavigateAgency();
+        } else {
+            window.history.pushState({}, '', '/agency');
+            window.dispatchEvent(new PopStateEvent('popstate'));
+        }
+    };
 
     return (
         <>
             <footer className="bg-zinc-950 border-t border-white/5 py-16">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Agency Banner Callout */}
+                    <div className="mb-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-rose-950/40 via-zinc-900 to-amber-950/30 border border-rose-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden shadow-2xl">
+                        <div className="flex items-start sm:items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shrink-0 mt-1 sm:mt-0">
+                                <Shield className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                    <h4 className="text-white font-extrabold text-base sm:text-lg">Creator Connect Agency</h4>
+                                    <span className="text-[10px] uppercase font-black bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full border border-rose-500/30">
+                                        100% Radical Transparency
+                                    </span>
+                                </div>
+                                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed max-w-2xl">
+                                    Talent Management & Influencer Marketing without the black box. Unlike traditional agencies that hide deal values and pocket 50% cuts, we provide open-book master invoices and guaranteed fast payouts.
+                                </p>
+                            </div>
+                        </div>
+                        <a
+                            href="/agency"
+                            onClick={handleAgencyClick}
+                            className="shrink-0 px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs sm:text-sm font-bold shadow-xl shadow-rose-500/20 transition flex items-center gap-2 group transform hover:-translate-y-0.5"
+                        >
+                            <span>Explore Agency Division</span>
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </a>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                         {/* Logo & Tagline */}
                         <div className="md:col-span-1">
@@ -948,7 +1014,7 @@ const Footer: React.FC = () => {
                                     Creator<span className="text-zinc-500">Connect</span>
                                 </span>
                             </div>
-                            <p className="text-zinc-500 text-sm leading-relaxed">The social network for the modern nomad.</p>
+                            <p className="text-zinc-500 text-sm leading-relaxed">The social network & transparent talent agency for the modern nomad.</p>
                         </div>
 
                         {/* Platform */}
@@ -969,6 +1035,16 @@ const Footer: React.FC = () => {
                                         )}
                                     </li>
                                 ))}
+                                <li>
+                                    <a
+                                        href="/agency"
+                                        onClick={handleAgencyClick}
+                                        className="text-rose-400 hover:text-rose-300 transition-colors text-sm font-semibold flex items-center gap-1.5"
+                                    >
+                                        <span>Agency & Talent</span>
+                                        <span className="text-[10px] uppercase font-black bg-rose-500/20 text-rose-300 px-1.5 py-0.2 rounded">100% Open</span>
+                                    </a>
+                                </li>
                             </ul>
                         </div>
 
@@ -976,6 +1052,16 @@ const Footer: React.FC = () => {
                         <div>
                             <h4 className="text-white font-bold text-sm mb-4 uppercase tracking-wider">Company</h4>
                             <ul className="space-y-2">
+                                <li>
+                                    <a
+                                        href="/agency"
+                                        onClick={handleAgencyClick}
+                                        className="text-zinc-400 hover:text-rose-400 transition-colors text-sm font-medium flex items-center gap-1.5"
+                                    >
+                                        <span>Agency (/agency)</span>
+                                        <span className="text-[10px] uppercase font-black bg-rose-500/20 text-rose-400 px-1.5 py-0.2 rounded">New</span>
+                                    </a>
+                                </li>
                                 {['about', 'blog', 'careers', 'privacy', 'terms'].map(key => (
                                     <li key={key}>
                                         {key === 'blog' ? (
@@ -1006,8 +1092,13 @@ const Footer: React.FC = () => {
                     </div>
 
                     {/* Bottom bar */}
-                    <div className="border-t border-white/5 pt-8 text-center">
+                    <div className="border-t border-white/5 pt-8 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
                         <p className="text-zinc-600 text-sm">© {new Date().getFullYear()} Creator Connect. All rights reserved.</p>
+                        <div className="flex items-center gap-4 text-xs text-zinc-500">
+                            <a href="/agency" onClick={handleAgencyClick} className="hover:text-rose-400 transition">Creator Connect Agency Division</a>
+                            <span>•</span>
+                            <span>100% Radical Transparency</span>
+                        </div>
                     </div>
                 </div>
             </footer>
@@ -1028,10 +1119,10 @@ const Footer: React.FC = () => {
     )
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onNavigateAgency }) => {
     return (
         <div className="min-h-screen bg-zinc-950 text-zinc-50 selection:bg-brand-500/30 selection:text-brand-200">
-            <Header onGetStarted={onGetStarted} />
+            <Header onGetStarted={onGetStarted} onNavigateAgency={onNavigateAgency} />
             <main>
                 <Hero onGetStarted={onGetStarted} />
                 <CollabExamples />
@@ -1040,7 +1131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <Waitlist onGetStarted={onGetStarted} />
                 <Testimonials />
             </main>
-            <Footer />
+            <Footer onNavigateAgency={onNavigateAgency} />
             <LiveTicker />
         </div>
     );

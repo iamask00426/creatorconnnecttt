@@ -11,6 +11,7 @@ import { PendingApprovalScreen } from './components/PendingApprovalScreen.tsx';
 import { BoltIcon } from './components/icons.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
 import { BlogPage } from './components/BlogPage.tsx';
+import { AgencyPage } from './components/AgencyPage.tsx';
 import { CreatorProfilePage } from './components/screens/CreatorProfilePage.tsx'; // Import for public view
 
 // Base template for new users
@@ -158,13 +159,18 @@ const SplashScreen = () => (
 const App: React.FC = () => {
     const [userData, setUserData] = useState<UserData | null>(null);
     const [authUserId, setAuthUserId] = useState<string | null>(null);
-    const [showLanding, setShowLanding] = useState(() => window.location.pathname !== '/dashboard');
+    const [showLanding, setShowLanding] = useState(() => window.location.pathname !== '/dashboard' && window.location.pathname !== '/agency');
     const [showWelcomeScreens, setShowWelcomeScreens] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     // Global Verification Modal (e.g. triggered from profile)
     const [showVerification, setShowVerification] = useState(false);
     const [showAdmin, setShowAdmin] = useState(() => window.location.pathname === '/admin');
+    const [showAgency, setShowAgency] = useState(() => {
+        const path = window.location.pathname;
+        const hash = window.location.hash;
+        return path === '/agency' || hash === '#/agency' || hash === '#agency';
+    });
 
     // Unique Link State
     const [viewingUniqueProfile, setViewingUniqueProfile] = useState<Creator | null>(null);
@@ -181,7 +187,7 @@ const App: React.FC = () => {
         const checkUniqueLink = async () => {
             const path = window.location.pathname;
             // Ignore standard routes
-            if (path === '/' || path === '/dashboard' || path === '/admin' || path.startsWith('/static')) {
+            if (path === '/' || path === '/dashboard' || path === '/admin' || path === '/agency' || path.startsWith('/static')) {
                 setViewingUniqueProfile(null);
                 return;
             }
@@ -203,19 +209,31 @@ const App: React.FC = () => {
 
         const handleHashChange = () => {
             const hash = window.location.hash;
-            if (hash.startsWith('#/blog/')) setBlogRoute({ active: true, slug: hash.slice(7) });
-            else if (hash === '#/blog') setBlogRoute({ active: true });
-            else setBlogRoute({ active: false });
+            if (hash === '#/agency' || hash === '#agency') {
+                setShowAgency(true);
+            } else if (hash.startsWith('#/blog/')) {
+                setBlogRoute({ active: true, slug: hash.slice(7) });
+            } else if (hash === '#/blog') {
+                setBlogRoute({ active: true });
+            } else {
+                setBlogRoute({ active: false });
+                if (window.location.pathname !== '/agency') {
+                    setShowAgency(false);
+                }
+            }
         };
         const handlePopState = () => {
             const path = window.location.pathname;
+            const hash = window.location.hash;
             setShowAdmin(path === '/admin');
+            const isAgency = path === '/agency' || hash === '#/agency' || hash === '#agency';
+            setShowAgency(isAgency);
 
             // Re-run unique link check on popstate
             checkUniqueLink();
 
-            // Only show landing if NOT admin, NOT dashboard, and NOT viewing a unique profile (checked above)
-            if (path !== '/dashboard' && path !== '/admin' && path === '/') {
+            // Only show landing if NOT admin, NOT dashboard, NOT agency, and NOT viewing a unique profile (checked above)
+            if (path !== '/dashboard' && path !== '/admin' && path !== '/agency' && path === '/' && !isAgency) {
                 setShowLanding(true);
                 setViewingUniqueProfile(null);
             }
@@ -240,11 +258,13 @@ const App: React.FC = () => {
         // Check for Demo Login bypass
         if (localStorage.getItem('demoLoginActive') === 'true') {
             setAuthUserId('mock-user-123');
-            if (window.location.pathname !== '/admin') {
+            if (window.location.pathname !== '/admin' && window.location.pathname !== '/agency') {
                 window.history.replaceState({}, '', '/dashboard');
             }
-            setShowLanding(false);
-            setShowWelcomeScreens(false);
+            if (window.location.pathname !== '/agency') {
+                setShowLanding(false);
+                setShowWelcomeScreens(false);
+            }
             return;
         }
 
@@ -252,11 +272,13 @@ const App: React.FC = () => {
             if (user) {
                 setAuthUserId(user.uid);
                 // Returning user — navigate to dashboard
-                if (window.location.pathname !== '/admin') {
+                if (window.location.pathname !== '/admin' && window.location.pathname !== '/agency') {
                     window.history.replaceState({}, '', '/dashboard');
                 }
-                setShowLanding(false);
-                setShowWelcomeScreens(false);
+                if (window.location.pathname !== '/agency') {
+                    setShowLanding(false);
+                    setShowWelcomeScreens(false);
+                }
             } else {
                 setAuthUserId(null);
                 setUserData(null);
@@ -446,6 +468,20 @@ const App: React.FC = () => {
         return <AdminDashboard onBack={() => { window.history.pushState({}, '', '/dashboard'); setShowAdmin(false); setShowLanding(false); }} />;
     }
 
+    if (showAgency) {
+        return (
+            <AgencyPage
+                onNavigateHome={() => {
+                    window.history.pushState({}, '', '/');
+                    window.location.hash = '';
+                    setShowAgency(false);
+                    setShowLanding(true);
+                }}
+                onGetStarted={handleLandingComplete}
+            />
+        );
+    }
+
     if (blogRoute.active) {
         return <BlogPage slug={blogRoute.slug} onNavigateHome={() => { window.location.hash = ''; setBlogRoute({ active: false }); }} />;
     }
@@ -498,6 +534,11 @@ const App: React.FC = () => {
                 {showLanding ? (
                     <LandingPage
                         onGetStarted={handleLandingComplete}
+                        onNavigateAgency={() => {
+                            window.history.pushState({}, '', '/agency');
+                            setShowAgency(true);
+                            setShowLanding(false);
+                        }}
                     />
                 ) : (
                     <div className="phone-frame-wrapper">
