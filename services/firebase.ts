@@ -14,7 +14,8 @@ import type {
     AppNotification,
     CalendarEvent,
     Feedback,
-    BlogPost
+    BlogPost,
+    AgencyApplication
 } from "../types";
 
 const firebaseConfig = {
@@ -754,4 +755,43 @@ export const uploadBlogImage = async (file: File): Promise<string> => {
     const storageRef = storage.ref(path);
     await storageRef.put(file);
     return await storageRef.getDownloadURL();
+};
+
+// Agency Applications
+export const subscribeToAgencyApplications = (callback: (apps: AgencyApplication[]) => void) => {
+    return db.collection('agency_applications')
+        .onSnapshot(snapshot => {
+            const apps = snapshot.docs.map(doc => {
+                const data = doc.data();
+                let createdDate = new Date();
+                if (data.createdAt?.toDate) {
+                    createdDate = data.createdAt.toDate();
+                } else if (data.createdAt) {
+                    createdDate = new Date(data.createdAt);
+                }
+                return {
+                    ...data,
+                    id: doc.id,
+                    status: data.status || 'new',
+                    createdAt: createdDate
+                } as AgencyApplication;
+            });
+            // Sort newest first
+            apps.sort((a, b) => {
+                const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+                const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+                return timeB - timeA;
+            });
+            callback(apps);
+        }, error => {
+            console.error("Error subscribing to agency applications:", error);
+        });
+};
+
+export const updateAgencyApplicationStatus = async (id: string, status: AgencyApplication['status']) => {
+    await db.collection('agency_applications').doc(id).update({ status });
+};
+
+export const deleteAgencyApplication = async (id: string) => {
+    await db.collection('agency_applications').doc(id).delete();
 };

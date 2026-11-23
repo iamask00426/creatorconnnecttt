@@ -10,16 +10,19 @@ import {
     createBlogPost,
     updateBlogPost,
     deleteBlogPost,
-    uploadBlogImage
+    uploadBlogImage,
+    subscribeToAgencyApplications,
+    updateAgencyApplicationStatus,
+    deleteAgencyApplication
 } from '../services/firebase';
 import { sendWhatsAppApproval } from '../services/whatsapp';
 import { SEED_USERS } from '../utils/seedData';
-import type { Creator, Collaboration, Feedback, BlogPost } from '../types';
+import type { Creator, Collaboration, Feedback, BlogPost, AgencyApplication } from '../types';
 import { UserEditModal } from './modals/UserEditModal';
 import { UserDetailModal } from './modals/UserDetailModal'; // Import Detail Modal
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-type AdminTab = 'overview' | 'users' | 'collabs' | 'feedback' | 'blog';
+type AdminTab = 'overview' | 'users' | 'collabs' | 'feedback' | 'blog' | 'agency';
 
 const COLORS = ['#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#64748b'];
 
@@ -38,6 +41,12 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     const [loading, setLoading] = useState(true);
     const [userFilter, setUserFilter] = useState<'all' | 'pending' | 'active' | 'rejected'>('all');
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Agency Applications State
+    const [agencyApplications, setAgencyApplications] = useState<AgencyApplication[]>([]);
+    const [agencyFilter, setAgencyFilter] = useState<'all' | 'new' | 'contacted' | 'approved' | 'archived'>('all');
+    const [agencyTypeFilter, setAgencyTypeFilter] = useState<'all' | 'creator' | 'brand'>('all');
+    const [agencySearchQuery, setAgencySearchQuery] = useState('');
 
     const handleAdminLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -109,12 +118,14 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         const unsubscribeCollabs = subscribeToAllCollabs((data) => setCollabs(data));
         const unsubscribeFeedback = subscribeToAllFeedback((data) => setFeedback(data));
         const unsubscribeBlog = subscribeToAllBlogPosts((data) => setBlogPosts(data));
+        const unsubscribeAgency = subscribeToAgencyApplications((data) => setAgencyApplications(data));
 
         return () => {
             unsubscribeUsers();
             unsubscribeCollabs();
             unsubscribeFeedback();
             unsubscribeBlog();
+            unsubscribeAgency();
         };
     }, []);
 
@@ -506,6 +517,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     totalCollaborations: collabs.length,
                     totalFeedback: feedback.length,
                     totalBlogPosts: blogPosts.length,
+                    totalAgencyApplications: agencyApplications.length,
                 },
                 users: users.map(u => ({
                     uid: u.uid,
@@ -552,6 +564,25 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
                     status: b.status,
                     tags: b.tags || [],
                     publishedAt: safeDate(b.publishedAt),
+                })),
+                agencyApplications: agencyApplications.map(a => ({
+                    id: a.id,
+                    formType: a.formType,
+                    name: a.name || '',
+                    email: a.email || '',
+                    phone: a.phone || '',
+                    instagramHandle: a.instagramHandle || '',
+                    instagramFollowers: a.instagramFollowers || '',
+                    youtubeHandle: a.youtubeHandle || '',
+                    youtubeSubscribers: a.youtubeSubscribers || '',
+                    companyName: a.companyName || '',
+                    websiteUrl: a.websiteUrl || '',
+                    campaignBudget: a.campaignBudget || '',
+                    selectedNiches: a.selectedNiches || [],
+                    deliverables: a.deliverables || {},
+                    message: a.message || '',
+                    status: a.status,
+                    createdAt: safeDate(a.createdAt),
                 })),
             };
 
@@ -641,6 +672,79 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         }
     };
 
+    const handleDownloadAgencyCSV = () => {
+        try {
+            const headers = [
+                'ID', 'Date', 'Type', 'Name', 'Email', 'Phone',
+                'Instagram Handle', 'Instagram Followers', 'YouTube Handle', 'YouTube Subscribers',
+                'Company Name', 'Website URL', 'Campaign Budget',
+                'Niches', 'Reel Rate', 'Feed Post Rate', 'Story Rate', 'Usage Rights Rate', 'YouTube Rate',
+                'Message / Notes', 'Status'
+            ];
+
+            const rows = agencyApplications.map(a => {
+                const safeDate = a.createdAt instanceof Date ? a.createdAt.toISOString() : (a.createdAt ? new Date(a.createdAt).toISOString() : '');
+                return [
+                    a.id || '',
+                    safeDate,
+                    a.formType || 'creator',
+                    a.name || '',
+                    a.email || '',
+                    a.phone || '',
+                    a.instagramHandle || '',
+                    a.instagramFollowers || '',
+                    a.youtubeHandle || '',
+                    a.youtubeSubscribers || '',
+                    a.companyName || '',
+                    a.websiteUrl || '',
+                    a.campaignBudget || '',
+                    (a.selectedNiches || []).join('; '),
+                    a.deliverables?.reelRate || (a.deliverables?.commercialReel ? 'Yes' : 'No'),
+                    a.deliverables?.postRate || (a.deliverables?.feedPost ? 'Yes' : 'No'),
+                    a.deliverables?.storyRate || (a.deliverables?.storyWithLink ? 'Yes' : 'No'),
+                    a.deliverables?.usageRate || (a.deliverables?.oneMonthUsageRights ? 'Yes' : 'No'),
+                    a.deliverables?.youtubeRate || (a.deliverables?.youtubeIntegration ? 'Yes' : 'No'),
+                    a.message || '',
+                    a.status || 'new'
+                ];
+            });
+
+            const csvContent = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `creatorconnect-agency-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('Agency CSV download failed:', err);
+            alert('Failed to download Agency Leads CSV.');
+        }
+    };
+
+    const handleUpdateAgencyStatus = async (id: string, status: AgencyApplication['status']) => {
+        try {
+            await updateAgencyApplicationStatus(id, status);
+            setAgencyApplications(prev => prev.map(a => a.id === id ? { ...a, status } : a));
+        } catch (error) {
+            console.error('Failed to update agency status:', error);
+            alert('Failed to update status');
+        }
+    };
+
+    const handleDeleteAgencyApplication = async (id: string, name: string) => {
+        if (!window.confirm(`Are you sure you want to delete application from "${name}"? This cannot be undone.`)) return;
+        try {
+            await deleteAgencyApplication(id);
+            setAgencyApplications(prev => prev.filter(a => a.id !== id));
+        } catch (error) {
+            console.error('Failed to delete agency application:', error);
+            alert('Failed to delete application');
+        }
+    };
 
     const stats = {
         totalUsers: users.length,
@@ -648,8 +752,28 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         activeUsers: users.filter(u => u.profileStatus === 'active').length,
         totalCollabs: collabs.length,
         activeCollabs: collabs.filter(c => c.status === 'active').length,
-        totalFeedback: feedback.length
+        totalFeedback: feedback.length,
+        totalAgencyApps: agencyApplications.length,
+        newAgencyApps: agencyApplications.filter(a => a.status === 'new').length,
+        creatorAgencyApps: agencyApplications.filter(a => a.formType === 'creator').length,
+        brandAgencyApps: agencyApplications.filter(a => a.formType === 'brand').length,
     };
+
+    const filteredAgencyApplications = agencyApplications.filter(app => {
+        const matchesStatus = agencyFilter === 'all' || app.status === agencyFilter;
+        const matchesType = agencyTypeFilter === 'all' || app.formType === agencyTypeFilter;
+        const q = agencySearchQuery.toLowerCase().trim();
+        const matchesSearch = !q || (
+            (app.name || '').toLowerCase().includes(q) ||
+            (app.email || '').toLowerCase().includes(q) ||
+            (app.phone || '').toLowerCase().includes(q) ||
+            (app.instagramHandle || '').toLowerCase().includes(q) ||
+            (app.youtubeHandle || '').toLowerCase().includes(q) ||
+            (app.companyName || '').toLowerCase().includes(q) ||
+            (app.selectedNiches || []).some(n => n.toLowerCase().includes(q))
+        );
+        return matchesStatus && matchesType && matchesSearch;
+    });
 
     const filteredUsers = users.filter(u => {
         const matchesFilter = userFilter === 'all' || u.profileStatus === userFilter;
@@ -758,48 +882,79 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         .sort((a, b) => Number(b.value) - Number(a.value))
         .slice(0, 5); // Top 5 cities
 
-    const renderSidebar = () => (
-        <aside className="w-64 bg-white border-r border-slate-200 min-h-screen fixed left-0 top-0 bottom-0 z-40 hidden md:flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-xl font-black text-slate-900 tracking-tight">Admin<span className="text-violet-600">Panel</span></span>
-            </div>
-            <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-                {(['overview', 'users', 'collabs', 'feedback', 'blog'] as const).map(tab => (
+    const renderSidebar = () => {
+        const sidebarTabs: { id: AdminTab; label: string; badge?: number; badgeColor?: string }[] = [
+            { id: 'overview', label: 'Overview' },
+            { id: 'agency', label: 'Agency Leads', badge: stats.newAgencyApps, badgeColor: 'bg-rose-500 text-white' },
+            { id: 'users', label: 'Users', badge: stats.pendingUsers, badgeColor: 'bg-amber-500 text-white' },
+            { id: 'collabs', label: 'Collabs' },
+            { id: 'feedback', label: 'Feedback' },
+            { id: 'blog', label: 'Blog' },
+        ];
+
+        return (
+            <aside className="w-64 bg-white border-r border-slate-200 min-h-screen fixed left-0 top-0 bottom-0 z-40 hidden md:flex flex-col">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <span className="text-xl font-black text-slate-900 tracking-tight">Admin<span className="text-violet-600">Panel</span></span>
+                </div>
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                    {sidebarTabs.map(({ id, label, badge, badgeColor }) => (
+                        <button
+                            key={id}
+                            onClick={() => setActiveTab(id)}
+                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === id
+                                ? 'bg-violet-50 text-violet-700 shadow-sm'
+                                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                                }`}
+                        >
+                            <span>{label}</span>
+                            {badge !== undefined && badge > 0 && (
+                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${badgeColor || 'bg-violet-600 text-white'}`}>
+                                    {badge}
+                                </span>
+                            )}
+                        </button>
+                    ))}
+                </nav>
+                <div className="p-4 border-t border-slate-100 space-y-2">
                     <button
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === tab
-                            ? 'bg-violet-50 text-violet-700 shadow-sm'
-                            : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                            }`}
+                        onClick={handleRefresh}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-violet-600 bg-violet-50 hover:bg-violet-100 transition-colors"
                     >
-                        <span className="capitalize">{tab}</span>
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        Refresh Data
                     </button>
-                ))}
-            </nav>
-            <div className="p-4 border-t border-slate-100 space-y-2">
-                <button
-                    onClick={handleRefresh}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-violet-600 bg-violet-50 hover:bg-violet-100 transition-colors"
-                >
-                    <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    Refresh Data
-                </button>
-                <button
-                    onClick={onBack}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors"
-                >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                    Exit Admin
-                </button>
-            </div>
-        </aside>
-    );
+                    <button
+                        onClick={onBack}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        Exit Admin
+                    </button>
+                </div>
+            </aside>
+        );
+    };
 
     const renderOverview = () => (
         <div className="space-y-6">
             <h2 className="text-2xl font-black text-slate-900">Dashboard Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div 
+                    onClick={() => setActiveTab('agency')}
+                    className="bg-gradient-to-br from-rose-500/10 via-white to-orange-500/10 p-6 rounded-3xl border border-rose-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                >
+                    <div className="flex items-center justify-between mb-2">
+                        <p className="text-xs font-bold text-rose-600 uppercase tracking-wider">Agency Leads</p>
+                        <span className="text-xs font-black text-rose-600 group-hover:translate-x-1 transition-transform">View →</span>
+                    </div>
+                    <div className="flex items-end justify-between">
+                        <p className="text-4xl font-black text-slate-900">{stats.totalAgencyApps}</p>
+                        <span className="px-2.5 py-1 rounded-lg bg-rose-500 text-white text-xs font-bold">
+                            {stats.newAgencyApps} New
+                        </span>
+                    </div>
+                </div>
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total Users</p>
                     <div className="flex items-end justify-between">
@@ -1626,6 +1781,423 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
         </div>
     );
 
+    const renderAgency = () => {
+        return (
+            <div className="space-y-6">
+                {/* Header with Title and Actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-rose-100 text-rose-700 tracking-wide uppercase">
+                                Exclusive Agency
+                            </span>
+                            <span className="text-xs text-slate-400 font-bold">
+                                {agencyApplications.length} total applications
+                            </span>
+                        </div>
+                        <h2 className="text-2xl font-black text-slate-900">Agency Applications & Leads</h2>
+                        <p className="text-sm text-slate-500">
+                            Creator representation requests and brand marketing inquiries from creatorconnect.io/agency
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleDownloadAgencyCSV}
+                            className="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-slate-50 shadow-sm flex items-center gap-2 transition-colors"
+                        >
+                            <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Export Leads CSV
+                        </button>
+                    </div>
+                </div>
+
+                {/* Filter and Search Bar */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        {/* Type Switcher */}
+                        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+                            {(['all', 'creator', 'brand'] as const).map(type => (
+                                <button
+                                    key={type}
+                                    onClick={() => setAgencyTypeFilter(type)}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${
+                                        agencyTypeFilter === type
+                                            ? 'bg-white text-slate-900 shadow-sm'
+                                            : 'text-slate-500 hover:text-slate-900'
+                                    }`}
+                                >
+                                    {type === 'all' ? `All Leads (${agencyApplications.length})` : type === 'creator' ? `Creators (${stats.creatorAgencyApps})` : `Brands (${stats.brandAgencyApps})`}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Search Input */}
+                        <div className="relative flex-1 max-w-md">
+                            <input
+                                type="text"
+                                placeholder="Search by name, email, phone, IG/YT handle, or niche..."
+                                value={agencySearchQuery}
+                                onChange={e => setAgencySearchQuery(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+                            />
+                            <svg className="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            {agencySearchQuery && (
+                                <button
+                                    onClick={() => setAgencySearchQuery('')}
+                                    className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600 font-bold"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Status Tabs */}
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-slate-100">
+                        {(['all', 'new', 'contacted', 'approved', 'archived'] as const).map(status => {
+                            const count = status === 'all'
+                                ? agencyApplications.length
+                                : agencyApplications.filter(a => a.status === status).length;
+                            return (
+                                <button
+                                    key={status}
+                                    onClick={() => setAgencyFilter(status)}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                                        agencyFilter === status
+                                            ? 'bg-rose-500 text-white shadow-sm'
+                                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                                >
+                                    <span className="capitalize">{status}</span>
+                                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                                        agencyFilter === status ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                                    }`}>
+                                        {count}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Applications List */}
+                <div className="space-y-4">
+                    {filteredAgencyApplications.length === 0 ? (
+                        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
+                            </div>
+                            <h3 className="text-base font-bold text-slate-900 mb-1">No applications found</h3>
+                            <p className="text-xs text-slate-500">
+                                {agencySearchQuery || agencyFilter !== 'all' || agencyTypeFilter !== 'all'
+                                    ? 'Try clearing your search or filter pills.'
+                                    : 'New submissions from creatorconnect.io/agency will automatically appear here.'}
+                            </p>
+                        </div>
+                    ) : (
+                        filteredAgencyApplications.map(app => {
+                            const isCreator = app.formType === 'creator';
+                            const cleanPhone = app.phone ? app.phone.replace(/[^0-9]/g, '') : '';
+                            const phoneWithCountry = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+                            const waMessage = isCreator
+                                ? `Hi ${app.name}, this is Akash from the Creator Connect Agency team! We received your application for talent representation. Let's discuss!`
+                                : `Hi ${app.name}, this is Akash from the Creator Connect Agency team! We received your brand campaign inquiry. Let's discuss your creator campaign!`;
+                            const waUrl = `https://wa.me/${phoneWithCountry}?text=${encodeURIComponent(waMessage)}`;
+
+                            const dateStr = app.createdAt instanceof Date
+                                ? app.createdAt.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })
+                                : (app.createdAt ? new Date(app.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : 'Recent');
+
+                            return (
+                                <div
+                                    key={app.id}
+                                    className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden"
+                                >
+                                    {/* Card Header */}
+                                    <div className="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm text-white shadow-sm ${
+                                                isCreator
+                                                    ? 'bg-gradient-to-tr from-rose-500 to-orange-400'
+                                                    : 'bg-gradient-to-tr from-blue-600 to-indigo-500'
+                                            }`}>
+                                                {app.name ? app.name.charAt(0).toUpperCase() : (isCreator ? 'C' : 'B')}
+                                            </div>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="font-black text-slate-900 text-base">{app.name}</h3>
+                                                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black uppercase tracking-wider ${
+                                                        isCreator
+                                                            ? 'bg-rose-100 text-rose-700 border border-rose-200/60'
+                                                            : 'bg-indigo-100 text-indigo-700 border border-indigo-200/60'
+                                                    }`}>
+                                                        {isCreator ? '🎨 Creator' : '🏢 Brand'}
+                                                    </span>
+                                                </div>
+                                                <p className="text-xs text-slate-400 font-medium">Applied {dateStr}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Status Tag & Fast Selector */}
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-slate-400">Status:</span>
+                                            <select
+                                                value={app.status || 'new'}
+                                                onChange={e => handleUpdateAgencyStatus(app.id, e.target.value as any)}
+                                                className={`text-xs font-black uppercase tracking-wider rounded-xl px-3 py-1.5 border outline-none cursor-pointer transition-all ${
+                                                    app.status === 'new'
+                                                        ? 'bg-amber-50 text-amber-800 border-amber-300'
+                                                        : app.status === 'contacted'
+                                                        ? 'bg-sky-50 text-sky-800 border-sky-300'
+                                                        : app.status === 'approved'
+                                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                                        : 'bg-slate-100 text-slate-700 border-slate-300'
+                                                }`}
+                                            >
+                                                <option value="new">● New</option>
+                                                <option value="contacted">☎ Contacted</option>
+                                                <option value="approved">✓ Approved</option>
+                                                <option value="archived">✕ Archived</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Card Body */}
+                                    <div className="p-5 space-y-4">
+                                        {/* Contact & Reach Row */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {/* Contact Details */}
+                                            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Direct Contact</p>
+                                                <div className="space-y-1 text-xs font-semibold text-slate-700">
+                                                    <div className="flex items-center gap-2">
+                                                        <svg className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                                        </svg>
+                                                        <a href={`mailto:${app.email}`} className="text-violet-600 hover:underline truncate">
+                                                            {app.email}
+                                                        </a>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <svg className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                                        </svg>
+                                                        <a href={`tel:${app.phone}`} className="hover:underline">
+                                                            {app.phone}
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                                {/* Instant WhatsApp Action */}
+                                                <div className="pt-2">
+                                                    <a
+                                                        href={waUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+                                                    >
+                                                        <svg className="w-3.5 h-3.5 fill-current flex-shrink-0" viewBox="0 0 24 24">
+                                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                                                        </svg>
+                                                        WhatsApp Applicant
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            {/* Reach / Brand Info */}
+                                            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                                    {isCreator ? 'Audience & Socials' : 'Company & Budget'}
+                                                </p>
+                                                {isCreator ? (
+                                                    <div className="space-y-1.5 text-xs font-semibold">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-slate-500">📸 Instagram:</span>
+                                                            <div className="text-right">
+                                                                <span className="font-bold text-slate-900 font-mono">
+                                                                    {app.instagramHandle ? (app.instagramHandle.startsWith('@') ? app.instagramHandle : `@${app.instagramHandle}`) : 'N/A'}
+                                                                </span>
+                                                                {app.instagramFollowers && (
+                                                                    <span className="ml-1 text-[11px] font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
+                                                                        {app.instagramFollowers}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-slate-500">🎥 YouTube:</span>
+                                                            <div className="text-right">
+                                                                <span className="font-bold text-slate-900 font-mono">
+                                                                    {app.youtubeHandle || 'N/A'}
+                                                                </span>
+                                                                {app.youtubeSubscribers && (
+                                                                    <span className="ml-1 text-[11px] font-black text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                                                                        {app.youtubeSubscribers}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-1.5 text-xs font-semibold">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-slate-500">Company:</span>
+                                                            <span className="font-bold text-slate-900">{app.companyName || 'N/A'}</span>
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-slate-500">Website:</span>
+                                                            {app.websiteUrl ? (
+                                                                <a href={app.websiteUrl.startsWith('http') ? app.websiteUrl : `https://${app.websiteUrl}`} target="_blank" rel="noopener noreferrer" className="text-violet-600 hover:underline truncate max-w-[140px]">
+                                                                    {app.websiteUrl}
+                                                                </a>
+                                                            ) : (
+                                                                <span className="text-slate-400">N/A</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center justify-between">
+                                                            <span className="text-slate-500">Campaign Budget:</span>
+                                                            <span className="font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
+                                                                {app.campaignBudget || 'Not specified'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Niches Box */}
+                                            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                                    Content Niches ({app.selectedNiches?.length || 0})
+                                                </p>
+                                                <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                                                    {(app.selectedNiches || []).map((niche, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className="px-2 py-0.5 rounded-lg text-[11px] font-bold bg-white text-slate-700 border border-slate-200 shadow-2xs"
+                                                        >
+                                                            {niche}
+                                                        </span>
+                                                    ))}
+                                                    {(!app.selectedNiches || app.selectedNiches.length === 0) && (
+                                                        <span className="text-xs text-slate-400 italic">No niches specified</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Commercial Deliverables & Pricing Breakdown */}
+                                        <div className="p-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black tracking-wider uppercase text-rose-400">
+                                                        Deliverables & Commercial Rates (₹ INR)
+                                                    </span>
+                                                </div>
+                                                <span className="text-[11px] font-semibold text-slate-400">
+                                                    100% Radical Transparency • 0% Hidden Markup
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+                                                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">🎬 Reel</p>
+                                                    <p className="text-xs font-black text-white">
+                                                        {app.deliverables?.reelRate || (app.deliverables?.commercialReel ? 'Selected' : 'Standard Rate')}
+                                                    </p>
+                                                </div>
+                                                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">📸 Feed Post</p>
+                                                    <p className="text-xs font-black text-white">
+                                                        {app.deliverables?.postRate || (app.deliverables?.feedPost ? 'Selected' : 'Standard Rate')}
+                                                    </p>
+                                                </div>
+                                                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">⏳ Story</p>
+                                                    <p className="text-xs font-black text-white">
+                                                        {app.deliverables?.storyRate || (app.deliverables?.storyWithLink ? 'Selected' : 'Standard Rate')}
+                                                    </p>
+                                                </div>
+                                                <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+                                                    <p className="text-[10px] uppercase font-bold text-rose-300 mb-0.5">🔒 1-Mo Usage</p>
+                                                    <p className="text-xs font-black text-rose-200">
+                                                        {app.deliverables?.usageRate || (app.deliverables?.oneMonthUsageRights ? '+30-50% / Included' : '+30-50%')}
+                                                    </p>
+                                                </div>
+                                                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+                                                    <p className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">🎥 YouTube</p>
+                                                    <p className="text-xs font-black text-white">
+                                                        {app.deliverables?.youtubeRate || (app.deliverables?.youtubeIntegration ? 'Selected' : 'Standard Rate')}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Message / Goals */}
+                                        {app.message && (
+                                            <div className="p-3.5 bg-amber-50/60 rounded-2xl border border-amber-200/60 text-xs">
+                                                <p className="text-[10px] font-black uppercase tracking-wider text-amber-700 mb-1">
+                                                    Applicant Goals / Experience
+                                                </p>
+                                                <p className="text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
+                                                    "{app.message}"
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {/* Bottom Action Footer */}
+                                        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
+                                            <div className="flex items-center gap-2">
+                                                {app.status !== 'contacted' && (
+                                                    <button
+                                                        onClick={() => handleUpdateAgencyStatus(app.id, 'contacted')}
+                                                        className="px-3 py-1.5 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold transition-colors"
+                                                    >
+                                                        Mark Contacted
+                                                    </button>
+                                                )}
+                                                {app.status !== 'approved' && (
+                                                    <button
+                                                        onClick={() => handleUpdateAgencyStatus(app.id, 'approved')}
+                                                        className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold transition-colors"
+                                                    >
+                                                        Approve Lead
+                                                    </button>
+                                                )}
+                                                {app.status !== 'archived' && (
+                                                    <button
+                                                        onClick={() => handleUpdateAgencyStatus(app.id, 'archived')}
+                                                        className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 font-bold transition-colors"
+                                                    >
+                                                        Archive
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <button
+                                                onClick={() => handleDeleteAgencyApplication(app.id, app.name)}
+                                                className="px-3 py-1.5 rounded-xl text-red-600 hover:bg-red-50 font-bold transition-colors flex items-center gap-1"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Delete Application
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
+        );
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -1655,6 +2227,7 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
             <main className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 pb-24 md:pb-8 h-screen overflow-y-auto">
                 <div className="max-w-5xl mx-auto">
                     {activeTab === 'overview' && renderOverview()}
+                    {activeTab === 'agency' && renderAgency()}
                     {activeTab === 'users' && renderUsers()}
                     {activeTab === 'collabs' && renderCollabs()}
                     {activeTab === 'feedback' && renderFeedback()}
@@ -1664,15 +2237,18 @@ export const AdminDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => 
 
             {/* Mobile Bottom Nav */}
             <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-2 z-40 pb-safe">
-                {(['overview', 'users', 'collabs', 'feedback', 'blog'] as const).map(tab => (
+                {(['overview', 'agency', 'users', 'collabs', 'feedback', 'blog'] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`p-2 flex flex-col items-center gap-1 rounded-xl transition-all ${activeTab === tab ? 'text-violet-600' : 'text-slate-400'
+                        className={`p-2 flex flex-col items-center gap-1 rounded-xl transition-all relative ${activeTab === tab ? 'text-violet-600' : 'text-slate-400'
                             }`}
                     >
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>
-                        <span className="text-xs font-bold uppercase tracking-wider">{tab}</span>
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>
+                        <span className="text-[10px] font-bold uppercase tracking-wider">{tab === 'agency' ? 'Agency' : tab}</span>
+                        {tab === 'agency' && stats.newAgencyApps > 0 && (
+                            <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
+                        )}
                     </button>
                 ))}
             </nav>

@@ -170,3 +170,37 @@ export interface BlogPost {
     updatedAt: Date;
     publishedAt: Date | null;
 }
+
+export interface AgencyApplication {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    formType: 'creator' | 'brand';
+    // Socials for creator
+    instagramHandle?: string;
+    instagramFollowers?: string;
+    youtubeHandle?: string;
+    youtubeSubscribers?: string;
+    // Brand fields
+    companyName?: string;
+    websiteUrl?: string;
+    campaignBudget?: string;
+    // Common
+    selectedNiches: string[];
+    deliverables: {
+        commercialReel?: boolean;
+        reelRate?: string;
+        feedPost?: boolean;
+        postRate?: string;
+        storyWithLink?: boolean;
+        storyRate?: string;
+        oneMonthUsageRights?: boolean;
+        usageRate?: string;
+        youtubeIntegration?: boolean;
+        youtubeRate?: string;
+    };
+    message?: string;
+    status: 'new' | 'contacted' | 'approved' | 'archived';
+    createdAt: any;
+}
